@@ -131,10 +131,7 @@
         [implementation appendString:@"}\n"];
 
     } else {
-        [implementation appendFormat:@"    UIImage *image = [[self imageCache] objectForKey:@\"%@\"];\n", name];
-        [implementation appendString:@"    if (image) {\n"];
-        [implementation appendString:@"        return image;\n"];
-        [implementation appendString:@"    }\n\n"];
+        [implementation appendString:@"    UIImage *image = nil;\n\n"];
         
         for (NSDictionary *variant in variants) {
             if (!variant[@"filename"]) {
@@ -174,7 +171,6 @@
             [implementation appendString:@"\n"];
         }
         
-        [implementation appendFormat:@"    [[self imageCache] setObject:image forKey:@\"%@\"];\n", name];
         [implementation appendString:@"    return image;\n"];
         [implementation appendString:@"}\n"];
     }
@@ -182,23 +178,6 @@
     @synchronized(self.implementationContents) {
         [self.implementationContents addObject:implementation];
     }
-}
-
-- (NSString *)cacheMethodContents;
-{
-    NSMutableString *contents = [NSMutableString string];
-    
-    [contents appendString:@"+ (NSCache *)imageCache;\n"];
-    [contents appendString:@"{\n"];
-    [contents appendString:@"    static dispatch_once_t onceToken;\n"];
-    [contents appendString:@"    static NSCache *imageCache = nil;\n"];
-    [contents appendString:@"    dispatch_once(&onceToken, ^{\n"];
-    [contents appendString:@"        imageCache = [NSCache new];\n"];
-    [contents appendString:@"    });\n"];
-    [contents appendString:@"    return imageCache;\n"];
-    [contents appendString:@"}\n"];
-    
-    return contents;
 }
 
 - (void)outputCode;
@@ -224,7 +203,7 @@
         [interface writeToURL:interfaceURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
     }
     
-    NSString *implementation = [NSString stringWithFormat:@"//\n// This file is generated from %@.xcassets by objc-assetgen.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n@implementation %@\n\n%@\n%@\n\n@end\n", self.catalogName, classNameH, className, self.cacheMethodContents, [self.implementationContents componentsJoinedByString:@"\n"]];
+    NSString *implementation = [NSString stringWithFormat:@"//\n// This file is generated from %@.xcassets by objc-assetgen.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n@implementation %@\n\n%@\n\n@end\n", self.catalogName, classNameH, className, [self.implementationContents componentsJoinedByString:@"\n"]];
     
     if (![implementation isEqualToString:[NSString stringWithContentsOfURL:implementationURL encoding:NSUTF8StringEncoding error:NULL]]) {
         [implementation writeToURL:implementationURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
