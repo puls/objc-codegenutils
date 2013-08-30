@@ -14,8 +14,15 @@ For an asset catalog named "Foo" containing image sets "Bar" and "Baz", you'll g
 
 ## Command-line options
 
-There are none. The class prefix is hardcoded as `WQ` and the output directory is hardcoded as the current one. We should fix this.
+Usage:
+* `objc-assetgen [-o <path>] [-f <path>] [-p <prefix>] [<paths>]`
+* `objc-assetgen -h`
 
-## Future plans
-
-Maybe swizzle `+[UIImage imageNamed:]`?
+Options:
+<dl>
+<dt><code>-o &lt;path></code></dt><dd>Output files at <code>&lt;path></code></dd>
+<dt><code>-f &lt;path></code></dt><dd>Search for *.xcassets folders starting from <code>&lt;path></code></dd>
+<dt><code>-p &lt;prefix></code></dt><dd>Use <code>&lt;prefix></code> as the class prefix in the generated code</dd>
+<dt><code>-h</code></dt><dd>Print this help and exit</dd>
+<dt><code>&lt;paths></code></dt><dd>Input files; this and/or -f are required.</dd>
+</dl>
