@@ -26,6 +26,8 @@
 {
     AGCatalogParser *parser = [self new];
     
+    NSLog(@"Starting catalog for url %@", url);
+    
     parser.rootURL = url;
     parser.catalogName = [url.lastPathComponent stringByDeletingPathExtension];
     parser.classPrefix = @"";
@@ -37,7 +39,6 @@
 {
     dispatch_group_t dispatchGroup = dispatch_group_create();
     dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_queue_t returnQueue = dispatch_get_current_queue();
     dispatch_async(dispatchQueue, ^{
         [self findImageSetURLs];
 
@@ -54,7 +55,7 @@
         
         [self outputCode];
         
-        dispatch_async(returnQueue, completionBlock);
+        completionBlock();
     });
 }
 
