@@ -10,7 +10,7 @@ But shucks! The important and awesome part is the editor, and it puts all of the
 
 Call `objc-assetgen` with the `.xcassets` paths as arguments from the directory into which it should output the code.
 
-For an asset catalog named "Foo" containing image sets "Bar" and "Baz", you'll get `WQFooCatalog.h` and `WQFooCatalog.m`, with class methods `+ (UIImage *)imageForBar` and `+ (UIImage *)imageForBaz`. Put them in your DerivedSources folder and you're good to go.
+For an asset catalog named "Foo" containing image sets "Bar" and "Baz", you'll get `FooCatalog.h` and `FooCatalog.m`, with class methods `+ (UIImage *)imageForBar` and `+ (UIImage *)imageForBaz`. Put them in your DerivedSources folder and you're good to go.
 
 ## Command-line options
 
