@@ -84,14 +84,6 @@
         return;
     }
     
-    NSUInteger resizableIndex = [[contents[@"images"] valueForKey:@"resizing"] indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
-        return obj != [NSNull null];
-    }];
-    
-    if (resizableIndex == NSNotFound) {
-        return;
-    }
-    
     NSString *interface = [NSString stringWithFormat:@"+ (UIImage *)imageFor%@;\n", name];
     @synchronized(self.interfaceContents) {
         [self.interfaceContents addObject:interface];
@@ -119,13 +111,18 @@
         [implementation appendFormat:@"%@    if ([UIScreen mainScreen].scale == %.1ff) {\n", indentation, scale];
         [implementation appendFormat:@"%@        UIImage *baseImage = [UIImage imageNamed:@\"%@\"];\n", indentation, filename];
 
-        CGFloat top = [variant[@"resizing"][@"capInsets"][@"top"] floatValue] / scale;
-        CGFloat left = [variant[@"resizing"][@"capInsets"][@"left"] floatValue] / scale;
-        CGFloat bottom = [variant[@"resizing"][@"capInsets"][@"bottom"] floatValue] / scale;
-        CGFloat right = [variant[@"resizing"][@"capInsets"][@"right"] floatValue] / scale;
-        NSString *mode = [variant[@"resizing"][@"center"][@"mode"] isEqualToString:@"stretch"] ? @"UIImageResizingModeStretch" : @"UIImageResizingModeTile";
-        
-        [implementation appendFormat:@"%@        return [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(%.1ff, %.1ff, %.1ff, %.1ff) resizingMode:%@];\n", indentation, top, left, bottom, right, mode];
+        NSDictionary *resizing = variant[@"resizing"];
+        if (resizing) {
+            CGFloat top = [resizing[@"capInsets"][@"top"] floatValue] / scale;
+            CGFloat left = [resizing[@"capInsets"][@"left"] floatValue] / scale;
+            CGFloat bottom = [resizing[@"capInsets"][@"bottom"] floatValue] / scale;
+            CGFloat right = [resizing[@"capInsets"][@"right"] floatValue] / scale;
+            NSString *mode = [resizing[@"center"][@"mode"] isEqualToString:@"stretch"] ? @"UIImageResizingModeStretch" : @"UIImageResizingModeTile";
+            
+            [implementation appendFormat:@"%@        return [baseImage resizableImageWithCapInsets:UIEdgeInsetsMake(%.1ff, %.1ff, %.1ff, %.1ff) resizingMode:%@];\n", indentation, top, left, bottom, right, mode];
+        } else {
+            [implementation appendFormat:@"%@        return baseImage;\n", indentation];
+        }
 
         [implementation appendFormat:@"%@    }\n", indentation];
         
