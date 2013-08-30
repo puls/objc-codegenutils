@@ -7,15 +7,28 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AGCatalogParser.h"
 
 int main(int argc, const char * argv[])
 {
-
     @autoreleasepool {
+        dispatch_group_t group = dispatch_group_create();
         
-        // insert code here...
-        NSLog(@"Hello, World!");
+        NSInteger index = 0;
+        for (NSString *argument in [[NSProcessInfo processInfo] arguments]) {
+            if (index++ == 0) {
+                continue;
+            }
+            
+            dispatch_group_enter(group);
+            AGCatalogParser *parser = [AGCatalogParser assetCatalogAtURL:[NSURL fileURLWithPath:argument]];
+            parser.classPrefix = @"WQ";
+            [parser startWithCompletionHandler:^{
+                dispatch_group_leave(group);
+            }];
+        }
         
+        dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
     }
     return 0;
 }

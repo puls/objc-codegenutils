@@ -10,6 +10,7 @@
 		A89D8FE717CFFDCE0077F2B5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */; };
 		A89D8FEA17CFFDCE0077F2B5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A89D8FE917CFFDCE0077F2B5 /* main.m */; };
 		A89D8FEE17CFFDCE0077F2B5 /* assetgen.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = A89D8FED17CFFDCE0077F2B5 /* assetgen.1 */; };
+		A89D8FF617CFFED90077F2B5 /* AGCatalogParser.m in Sources */ = {isa = PBXBuildFile; fileRef = A89D8FF517CFFED90077F2B5 /* AGCatalogParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,11 +27,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A89D8FE317CFFDCE0077F2B5 /* assetgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = assetgen; sourceTree = BUILT_PRODUCTS_DIR; };
+		A89D8FE317CFFDCE0077F2B5 /* objc-assetgen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "objc-assetgen"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A89D8FE917CFFDCE0077F2B5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A89D8FEC17CFFDCE0077F2B5 /* assetgen-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "assetgen-Prefix.pch"; sourceTree = "<group>"; };
 		A89D8FED17CFFDCE0077F2B5 /* assetgen.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = assetgen.1; sourceTree = "<group>"; };
+		A89D8FF417CFFED90077F2B5 /* AGCatalogParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AGCatalogParser.h; sourceTree = "<group>"; };
+		A89D8FF517CFFED90077F2B5 /* AGCatalogParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AGCatalogParser.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +60,7 @@
 		A89D8FE417CFFDCE0077F2B5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A89D8FE317CFFDCE0077F2B5 /* assetgen */,
+				A89D8FE317CFFDCE0077F2B5 /* objc-assetgen */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,6 +76,8 @@
 		A89D8FE817CFFDCE0077F2B5 /* assetgen */ = {
 			isa = PBXGroup;
 			children = (
+				A89D8FF417CFFED90077F2B5 /* AGCatalogParser.h */,
+				A89D8FF517CFFED90077F2B5 /* AGCatalogParser.m */,
 				A89D8FE917CFFDCE0077F2B5 /* main.m */,
 				A89D8FED17CFFDCE0077F2B5 /* assetgen.1 */,
 				A89D8FEB17CFFDCE0077F2B5 /* Supporting Files */,
@@ -105,7 +110,7 @@
 			);
 			name = assetgen;
 			productName = assetgen;
-			productReference = A89D8FE317CFFDCE0077F2B5 /* assetgen */;
+			productReference = A89D8FE317CFFDCE0077F2B5 /* objc-assetgen */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -139,6 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A89D8FF617CFFED90077F2B5 /* AGCatalogParser.m in Sources */,
 				A89D8FEA17CFFDCE0077F2B5 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,7 +227,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "assetgen/assetgen-Prefix.pch";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "objc-assetgen";
 			};
 			name = Debug;
 		};
@@ -230,7 +236,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "assetgen/assetgen-Prefix.pch";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "objc-assetgen";
 			};
 			name = Release;
 		};
@@ -253,6 +259,7 @@
 				A89D8FF317CFFDCE0077F2B5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
