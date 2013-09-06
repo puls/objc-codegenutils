@@ -10,30 +10,12 @@
 
 @interface AGCatalogParser ()
 
-@property (copy) NSURL *rootURL;
 @property (strong) NSArray *imageSetURLs;
-@property (copy) NSString *catalogName;
-
-@property (strong) NSMutableArray *interfaceContents;
-@property (strong) NSMutableArray *implementationContents;
 
 @end
 
 
 @implementation AGCatalogParser
-
-+ (instancetype)assetCatalogAtURL:(NSURL *)url;
-{
-    AGCatalogParser *parser = [self new];
-    
-    NSLog(@"Starting catalog for url %@", url);
-    
-    parser.rootURL = url;
-    parser.catalogName = [url.lastPathComponent stringByDeletingPathExtension];
-    parser.classPrefix = @"";
-    
-    return parser;
-}
 
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
 {
@@ -45,6 +27,8 @@
         self.interfaceContents = [NSMutableArray array];
         self.implementationContents = [NSMutableArray array];
         
+        self.className = [NSString stringWithFormat:@"%@%@Catalog", self.classPrefix, [[self.inputURL lastPathComponent] stringByDeletingPathExtension]];
+        
         for (NSURL *imageSetURL in self.imageSetURLs) {
             dispatch_group_async(dispatchGroup, dispatchQueue, ^{
                 [self parseImageSetAtURL:imageSetURL];
@@ -53,7 +37,7 @@
         
         dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
         
-        [self outputCode];
+        [self writeOutputFiles];
         
         completionBlock();
     });
@@ -62,7 +46,7 @@
 - (void)findImageSetURLs;
 {
     NSMutableArray *imageSetURLs = [NSMutableArray array];
-    NSDirectoryEnumerator *enumerator = [[NSFileManager new] enumeratorAtURL:self.rootURL includingPropertiesForKeys:@[NSURLNameKey] options:0 errorHandler:NULL];
+    NSDirectoryEnumerator *enumerator = [[NSFileManager new] enumeratorAtURL:self.inputURL includingPropertiesForKeys:@[NSURLNameKey] options:0 errorHandler:NULL];
     for (NSURL *url in enumerator) {
         if ([url.pathExtension isEqualToString:@"imageset"]) {
             [imageSetURLs addObject:url];
@@ -73,7 +57,7 @@
 
 - (void)parseImageSetAtURL:(NSURL *)url;
 {
-    NSString *name = [[[url lastPathComponent] stringByDeletingPathExtension] stringByReplacingOccurrencesOfString:@"~" withString:@"_"];
+    NSString *methodName = [self methodNameForKey:[[url lastPathComponent] stringByDeletingPathExtension]];
     NSURL *contentsURL = [url URLByAppendingPathComponent:@"Contents.json"];
     NSData *contentsData = [NSData dataWithContentsOfURL:contentsURL options:NSDataReadingMappedIfSafe error:NULL];
     if (!contentsData) {
@@ -109,7 +93,7 @@
         return -[obj1[@"scale"] compare:obj2[@"scale"]];
     }];
 
-    NSString *interface = [NSString stringWithFormat:@"+ (UIImage *)imageFor%@;\n", name];
+    NSString *interface = [NSString stringWithFormat:@"+ (UIImage *)%@Image;\n", methodName];
     @synchronized(self.interfaceContents) {
         [self.interfaceContents addObject:interface];
     }
@@ -178,38 +162,6 @@
     @synchronized(self.implementationContents) {
         [self.implementationContents addObject:implementation];
     }
-}
-
-- (void)outputCode;
-{
-    NSURL *currentDirectory = [NSURL fileURLWithPath:[[NSFileManager new] currentDirectoryPath]];
-    NSString *className = [NSString stringWithFormat:@"%@%@Catalog", self.classPrefix, self.catalogName];
-    NSString *classNameH = [className stringByAppendingPathExtension:@"h"];
-    NSString *classNameM = [className stringByAppendingPathExtension:@"m"];
-
-    NSURL *interfaceURL = [currentDirectory URLByAppendingPathComponent:classNameH];
-    NSURL *implementationURL = [currentDirectory URLByAppendingPathComponent:classNameM];
-    
-    [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    [self.implementationContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    
-    NSString *interface = [NSString stringWithFormat:@"//\n// This file is generated from %@.xcassets by objc-assetgen.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n@interface %@ : NSObject\n\n%@\n@end\n", self.catalogName, className, [self.interfaceContents componentsJoinedByString:@""]];
-    
-    if (![interface isEqualToString:[NSString stringWithContentsOfURL:interfaceURL encoding:NSUTF8StringEncoding error:NULL]]) {
-        [interface writeToURL:interfaceURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
-    }
-    
-    NSString *implementation = [NSString stringWithFormat:@"//\n// This file is generated from %@.xcassets by objc-assetgen.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n@implementation %@\n\n%@\n\n@end\n", self.catalogName, classNameH, className, [self.implementationContents componentsJoinedByString:@"\n"]];
-    
-    if (![implementation isEqualToString:[NSString stringWithContentsOfURL:implementationURL encoding:NSUTF8StringEncoding error:NULL]]) {
-        [implementation writeToURL:implementationURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
-    }
-    
-    NSLog(@"Wrote %@ to %@", className, currentDirectory);
 }
 
 @end

@@ -6,14 +6,8 @@
 //  Copyright (c) 2013 Square, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "CGUCodeGenTool.h"
 
-@interface AGCatalogParser : NSObject
 
-+ (instancetype)assetCatalogAtURL:(NSURL *)url;
-
-@property (copy) NSString *classPrefix;
-
-- (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
-
+@interface AGCatalogParser : CGUCodeGenTool
 @end
