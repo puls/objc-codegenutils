@@ -79,7 +79,7 @@
     if (searchURL) {
         NSDirectoryEnumerator *enumerator = [[NSFileManager defaultManager] enumeratorAtURL:searchURL includingPropertiesForKeys:@[NSURLNameKey] options:0 errorHandler:NULL];
         for (NSURL *url in enumerator) {
-            if ([url.pathExtension isEqualToString:@"xcassets"]) {
+            if ([url.pathExtension isEqualToString:[self inputFileExtension]]) {
                 [inputURLs addObject:url];
             }
         }
@@ -131,7 +131,7 @@
         [interface writeToURL:interfaceURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
     }
     
-    NSString *implementation = [NSString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n\n@implementation %@\n\n%@\n\n@end\n", self.inputURL.lastPathComponent, self.toolName, classNameH, self.className, [self.implementationContents componentsJoinedByString:@"\n"]];
+    NSString *implementation = [NSString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n\n@implementation %@\n\n%@\n@end\n", self.inputURL.lastPathComponent, self.toolName, classNameH, self.className, [self.implementationContents componentsJoinedByString:@"\n"]];
     if (![implementation isEqualToString:[NSString stringWithContentsOfURL:implementationURL encoding:NSUTF8StringEncoding error:NULL]]) {
         [implementation writeToURL:implementationURL atomically:YES encoding:NSUTF8StringEncoding error:NULL];
     }

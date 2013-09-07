@@ -17,6 +17,11 @@
 
 @implementation AGCatalogParser
 
++ (NSString *)inputFileExtension;
+{
+    return @"xcassets";
+}
+
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
 {
     dispatch_group_t dispatchGroup = dispatch_group_create();

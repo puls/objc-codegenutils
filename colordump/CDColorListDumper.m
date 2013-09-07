@@ -12,6 +12,11 @@
 
 @implementation CDColorListDumper
 
++ (NSString *)inputFileExtension;
+{
+    return @"clr";
+}
+
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
 {
     NSString *colorListName = [[self.inputURL lastPathComponent] stringByDeletingPathExtension];

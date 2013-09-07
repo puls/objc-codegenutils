@@ -44,7 +44,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A885F89B17DA8C7A00A29164 /* colordump */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = colordump; sourceTree = BUILT_PRODUCTS_DIR; };
+		A885F89B17DA8C7A00A29164 /* objc-colordump */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "objc-colordump"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A885F89E17DA8C7A00A29164 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A885F8A117DA8C7A00A29164 /* colordump-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "colordump-Prefix.pch"; sourceTree = "<group>"; };
 		A885F8A217DA8C7A00A29164 /* colordump.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = colordump.1; sourceTree = "<group>"; };
@@ -127,7 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				A89D8FE317CFFDCE0077F2B5 /* objc-assetgen */,
-				A885F89B17DA8C7A00A29164 /* colordump */,
+				A885F89B17DA8C7A00A29164 /* objc-colordump */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,7 +178,7 @@
 			);
 			name = colordump;
 			productName = colordump;
-			productReference = A885F89B17DA8C7A00A29164 /* colordump */;
+			productReference = A885F89B17DA8C7A00A29164 /* objc-colordump */;
 			productType = "com.apple.product-type.tool";
 		};
 		A89D8FE217CFFDCE0077F2B5 /* assetgen */ = {
@@ -258,7 +258,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "objc-colordump";
 			};
 			name = Debug;
 		};
@@ -267,7 +267,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "colordump/colordump-Prefix.pch";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "objc-colordump";
 			};
 			name = Release;
 		};
@@ -369,6 +369,7 @@
 				A885F8A617DA8C7A00A29164 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A89D8FDE17CFFDCE0077F2B5 /* Build configuration list for PBXProject "codegenutils" */ = {
 			isa = XCConfigurationList;
