@@ -35,6 +35,7 @@
         NSColor *color = [colorList colorWithKey:key];
         if (![color.colorSpaceName isEqualToString:NSDeviceRGBColorSpace]) {
             printf("Color %s isn't device RGB. Skipping.", [key UTF8String]);
+            continue;
         }
         
         CGFloat r, g, b, a;
