@@ -79,10 +79,10 @@
     NSArray *variants = [contents[@"images"] sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         if (![obj1[@"subtype"] isEqualToString:obj2[@"subtype"]]) {
             if (obj1[@"subtype"]) {
-                return NSOrderedAscending;
+                return NSOrderedDescending;
             }
             if (obj2[@"subtype"]) {
-                return NSOrderedDescending;
+                return NSOrderedAscending;
             }
         }
         
@@ -127,15 +127,17 @@
                 continue;
             }
             BOOL isUniversal = [variant[@"idiom"] isEqualToString:@"universal"];
+            BOOL isRetina4Inch = [variant[@"subtype"] isEqualToString:@"retina4"];
             NSString *indentation = @"";
             if (!isUniversal) {
                 NSString *idiom = [variant[@"idiom"] isEqualToString:@"iphone"] ? @"UIUserInterfaceIdiomPhone" : @"UIUserInterfaceIdiomPad";
-                [implementation appendFormat:@"    if (UI_USER_INTERFACE_IDIOM() == %@) {\n", idiom];
+                [implementation appendFormat:@"    if (UI_USER_INTERFACE_IDIOM() == %@%@) {\n", idiom, isRetina4Inch ? @" && [UIScreen mainScreen].bounds.size.height == 568.0f" : @""];
                 indentation = @"    ";
             }
             
             CGFloat scale = [variant[@"scale"] floatValue];
-            NSString *filename = [variant[@"filename"] stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"@%@", variant[@"scale"]] withString:@""];
+            NSString *sizeExtension = isRetina4Inch ? @"-568h" : @"";
+            NSString *filename = [variant[@"filename"] stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"@%@", variant[@"scale"]] withString:sizeExtension];
             NSString *scaleIndentation = [indentation stringByAppendingString:@"    "];
             [implementation appendFormat:@"%@if ([UIScreen mainScreen].scale == %.1ff) {\n", scaleIndentation, scale];
             [implementation appendFormat:@"%@    image = [UIImage imageNamed:@\"%@\"];\n", scaleIndentation, filename];
