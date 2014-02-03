@@ -17,6 +17,8 @@
 
 @property (copy) NSURL *inputURL;
 @property (copy) NSString *classPrefix;
+@property BOOL targetiOS6;
+@property BOOL skipClassDeclaration;
 
 @property (copy) NSString *className;
 @property (strong) NSMutableArray *interfaceContents;

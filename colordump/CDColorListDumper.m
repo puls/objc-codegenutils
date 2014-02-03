@@ -21,7 +21,7 @@
 {
     NSString *colorListName = [[self.inputURL lastPathComponent] stringByDeletingPathExtension];
 
-    self.className = [NSString stringWithFormat:@"%@%@ColorList", self.classPrefix, colorListName];
+    self.className = [[NSString stringWithFormat:@"%@%@ColorList", self.classPrefix, colorListName]stringByReplacingOccurrencesOfString:@" " withString:@""];
 
     NSColorList *colorList = [[NSColorList alloc] initWithName:colorListName fromFile:self.inputURL.path];
     
