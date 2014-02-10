@@ -11,6 +11,7 @@
 #import "CGTAImagesCatalog+RuntimeHackery.h"
 #import "CGTAMainStoryboardIdentifiers.h"
 
+
 @interface CGTAFlagCollectionViewCell : UICollectionViewCell
 
 @property (nonatomic, weak) IBOutlet UIImageView *imageView;

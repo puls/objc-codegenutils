@@ -10,6 +10,7 @@
 
 #import <libgen.h>
 
+
 @interface CGUCodeGenTool ()
 
 @property (copy) NSString *toolName;
@@ -39,11 +40,11 @@
                 printf("Usage: %s [-6] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
                 printf("       %s -h\n\n", basename((char *)argv[0]));
                 printf("Options:\n");
+                printf("    -6          Target iOS 6 in addition to iOS 7\n");
                 printf("    -o <path>   Output files at <path>\n");
                 printf("    -f <path>   Search for *.%s folders starting from <path>\n", [[self inputFileExtension] UTF8String]);
                 printf("    -p <prefix> Use <prefix> as the class prefix in the generated code\n");
                 printf("    -h          Print this help and exit\n");
-                printf("    -6          Target iOS 6 in addition to iOS 7\n");
                 printf("    <paths>     Input files; this and/or -f are required.\n");
                 return 0;
             }

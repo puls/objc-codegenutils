@@ -6,8 +6,6 @@
 //  Copyright (c) 2013 Square, Inc. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 #import "AGCatalogParser.h"
 
 

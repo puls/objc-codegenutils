@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Square, Inc. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 
 @interface CGTAAppDelegate : UIResponder <UIApplicationDelegate>
 

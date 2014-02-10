@@ -8,6 +8,7 @@
 
 #import "AGCatalogParser.h"
 
+
 @interface AGCatalogParser ()
 
 @property (strong) NSArray *imageSetURLs;

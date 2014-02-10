@@ -5,34 +5,34 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>F7044F3F-D9D2-4B37-ABDA-D866ED2F71B5</string>
+	<string>F2A2CD3B-CF92-456B-A6D1-521122A0B09F</string>
 	<key>IDESourceControlProjectName</key>
 	<string>codegenutils</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>3AE060A8-BBE0-4D69-B27A-EB02B9CA7624</key>
-		<string>file:///Users/puls/Development/Pickup/Frameworks/codegenutils/.git</string>
+		<key>07C30AC5-FE3A-4374-AD3A-6DCB9229E197</key>
+		<string>ssh://git.squareup.com/ios/objc-codegenutils.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>codegenutils.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>3AE060A8-BBE0-4D69-B27A-EB02B9CA7624</key>
+		<key>07C30AC5-FE3A-4374-AD3A-6DCB9229E197</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>file:///Users/puls/Development/Pickup/Frameworks/codegenutils/.git</string>
+	<string>ssh://git.squareup.com/ios/objc-codegenutils.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>3AE060A8-BBE0-4D69-B27A-EB02B9CA7624</string>
+	<string>07C30AC5-FE3A-4374-AD3A-6DCB9229E197</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>3AE060A8-BBE0-4D69-B27A-EB02B9CA7624</string>
+			<string>07C30AC5-FE3A-4374-AD3A-6DCB9229E197</string>
 			<key>IDESourceControlWCCName</key>
 			<string>codegenutils</string>
 		</dict>

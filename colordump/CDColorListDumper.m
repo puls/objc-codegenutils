@@ -7,7 +7,6 @@
 //
 
 #import "CDColorListDumper.h"
-#import <Cocoa/Cocoa.h>
 
 
 @implementation CDColorListDumper
