@@ -58,8 +58,16 @@
 
 - (NSArray *)flagImages;
 {
-//    return @[[UIImage imageNamed:@"USA"], [UIImage imageNamed:@"Canada"], [UIImage imageNamed:@"UK"], [UIImage imageNamed:@"Austrlia"]];
-//    return @[[CGTAImagesCatalog usaImage], [CGTAImagesCatalog canadaImage], [CGTAImagesCatalog ukImage], [CGTAImagesCatalog australiaImage]];
+    NSArray *allFlagImages = nil;
+
+    // Initial version: full of strings that you have to type correctly!
+    // Misspell any of these and your app will crash on trying to add `nil` to an array.
+    allFlagImages = @[[UIImage imageNamed:@"USA"], [UIImage imageNamed:@"Canada"], [UIImage imageNamed:@"UK"], [UIImage imageNamed:@"Australia"]];
+
+    // New version: get the properly compiler-checked spelling from the image catalog.
+    allFlagImages = @[[CGTAImagesCatalog usaImage], [CGTAImagesCatalog canadaImage], [CGTAImagesCatalog ukImage], [CGTAImagesCatalog australiaImage]];
+
+    // But really, why not use a little runtime hackery because we can?
     return [CGTAImagesCatalog allImages];
 }
 
