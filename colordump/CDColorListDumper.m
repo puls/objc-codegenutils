@@ -3,11 +3,11 @@
 //  codegenutils
 //
 //  Created by Jim Puls on 9/6/13.
-//  Copyright (c) 2013 Square, Inc. All rights reserved.
-//
+//  Licensed to Square, Inc. under one or more contributor license agreements.
+//  See the LICENSE file distributed with this work for the terms under
+//  which Square, Inc. licenses this file to you.
 
 #import "CDColorListDumper.h"
-#import <Cocoa/Cocoa.h>
 
 
 @implementation CDColorListDumper
@@ -21,7 +21,7 @@
 {
     NSString *colorListName = [[self.inputURL lastPathComponent] stringByDeletingPathExtension];
 
-    self.className = [NSString stringWithFormat:@"%@%@ColorList", self.classPrefix, colorListName];
+    self.className = [[NSString stringWithFormat:@"%@%@ColorList", self.classPrefix, colorListName]stringByReplacingOccurrencesOfString:@" " withString:@""];
 
     NSColorList *colorList = [[NSColorList alloc] initWithName:colorListName fromFile:self.inputURL.path];
     
