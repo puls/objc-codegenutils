@@ -27,7 +27,8 @@
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
 {
     self.skipClassDeclaration = YES;
-    NSString *storyboardName = [[[self.inputURL lastPathComponent] stringByDeletingPathExtension]stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSString *storyboardFilename = [[self.inputURL lastPathComponent] stringByDeletingPathExtension];
+    NSString *storyboardName = [storyboardFilename stringByReplacingOccurrencesOfString:@" " withString:@""];
     
     self.className = [NSString stringWithFormat:@"%@%@StoryboardIdentifiers", self.classPrefix, storyboardName];
     NSError *error = nil;
@@ -45,6 +46,7 @@
     self.implementationContents = [NSMutableArray array];
     
     NSMutableDictionary *uniqueKeys = [NSMutableDictionary dictionary];
+    uniqueKeys[[NSString stringWithFormat:@"%@%@StoryboardName", self.classPrefix, storyboardName]] = storyboardFilename;
     
     for (NSString *identifier in identifiers) {
         NSString *key = [NSString stringWithFormat:@"%@%@Storyboard%@Identifier", self.classPrefix, storyboardName, [identifier IDS_titlecaseString]];
