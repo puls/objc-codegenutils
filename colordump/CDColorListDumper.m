@@ -32,14 +32,12 @@
     self.implementationContents = [NSMutableArray array];
     
     for (NSString *key in colorList.allKeys) {
-        NSColor *color = [colorList colorWithKey:key];
-        if (![color.colorSpaceName isEqualToString:NSDeviceRGBColorSpace]) {
-            printf("Color %s isn't device RGB. Skipping.", [key UTF8String]);
-            continue;
-        }
+        NSColor *rawColor = [colorList colorWithKey:key];
+        
+        NSColor *deviceRGBColor = [rawColor colorUsingColorSpaceName:NSDeviceRGBColorSpace];
         
         CGFloat r, g, b, a;
-        [color getRed:&r green:&g blue:&b alpha:&a];
+        [deviceRGBColor getRed:&r green:&g blue:&b alpha:&a];
         
         NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [self methodNameForKey:key]];
         [self.interfaceContents addObject:declaration];
