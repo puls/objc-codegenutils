@@ -33,20 +33,45 @@
     
     for (NSString *key in colorList.allKeys) {
         NSColor *color = [colorList colorWithKey:key];
-        if (![color.colorSpaceName isEqualToString:NSDeviceRGBColorSpace]) {
-            printf("Color %s isn't device RGB. Skipping.", [key UTF8String]);
+		
+		if([color.colorSpaceName isEqualToString:NSCalibratedRGBColorSpace])
+		{
+			color = [color colorUsingColorSpaceName:NSDeviceRGBColorSpace];
+		}
+		else if([color.colorSpaceName isEqualToString:NSCalibratedWhiteColorSpace])
+		{
+			color = [color colorUsingColorSpaceName:NSDeviceWhiteColorSpace];
+		}
+		
+        if ([color.colorSpaceName isEqualToString:NSDeviceRGBColorSpace])
+		{
+			CGFloat r, g, b, a;
+			[color getRed:&r green:&g blue:&b alpha:&a];
+			
+			NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [self methodNameForKey:key]];
+			[self.interfaceContents addObject:declaration];
+			
+			NSMutableString *method = [declaration mutableCopy];
+			[method appendFormat:@"{\n\treturn [UIColor colorWithRed:%.3ff green:%.3ff blue:%.3ff alpha:%.3ff];\n}\n", r, g, b, a];
+			[self.implementationContents addObject:method];
+		}
+		else if([color.colorSpaceName isEqualToString:NSDeviceWhiteColorSpace])
+		{
+			CGFloat w, a;
+			[color getWhite:&w alpha:&a];
+			
+			NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [self methodNameForKey:key]];
+			[self.interfaceContents addObject:declaration];
+			
+			NSMutableString *method = [declaration mutableCopy];
+			[method appendFormat:@"{\n\treturn [UIColor colorWithWhite:%.3f alpha:%.3f];\n}\n", w, a];
+			[self.implementationContents addObject:method];
+		}
+		else
+		{
+            printf("Color %s isn't supported. Skipping.\n", [key UTF8String]);
             continue;
         }
-        
-        CGFloat r, g, b, a;
-        [color getRed:&r green:&g blue:&b alpha:&a];
-        
-        NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [self methodNameForKey:key]];
-        [self.interfaceContents addObject:declaration];
-        
-        NSMutableString *method = [declaration mutableCopy];
-        [method appendFormat:@"{\n    return [UIColor colorWithRed:%.3ff green:%.3ff blue:%.3ff alpha:%.3ff];\n}\n", r, g, b, a];
-        [self.implementationContents addObject:method];
     }
     
     [self writeOutputFiles];
