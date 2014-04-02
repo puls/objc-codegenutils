@@ -18,11 +18,15 @@
 
 @property (copy) NSURL *inputURL;
 @property (copy) NSString *classPrefix;
+@property (copy) NSString *searchPath;
 @property BOOL targetiOS6;
 @property BOOL skipClassDeclaration;
+@property BOOL uberMode;
 
 @property (copy) NSString *className;
 @property (strong) NSMutableArray *interfaceContents;
+/// An array of strings such as "<Foundation/Foundation.h>" which will be imported at the top of the .h file.
+@property (strong) NSMutableArray *interfaceImports;
 @property (strong) NSMutableArray *implementationContents;
 
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;

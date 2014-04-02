@@ -31,20 +31,23 @@
 {
     char opt = -1;
     NSURL *searchURL = nil;
+    NSString *searchPath = nil;
     NSString *classPrefix = @"";
     BOOL target6 = NO;
+    BOOL uberMode = NO;
     NSMutableArray *inputURLs = [NSMutableArray array];
     
-    while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6")) != -1) {
+    while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6u")) != -1) {
         switch (opt) {
             case 'h': {
-                printf("Usage: %s [-6] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
+                printf("Usage: %s [-6] [-u] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
                 printf("       %s -h\n\n", basename((char *)argv[0]));
                 printf("Options:\n");
                 printf("    -6          Target iOS 6 in addition to iOS 7\n");
                 printf("    -o <path>   Output files at <path>\n");
                 printf("    -f <path>   Search for *.%s folders starting from <path>\n", [[self inputFileExtension] UTF8String]);
                 printf("    -p <prefix> Use <prefix> as the class prefix in the generated code\n");
+                printf("    -u          Uber mode\n");
                 printf("    -h          Print this help and exit\n");
                 printf("    <paths>     Input files; this and/or -f are required.\n");
                 return 0;
@@ -58,7 +61,7 @@
             }
                 
             case 'f': {
-                NSString *searchPath = [[NSString alloc] initWithUTF8String:optarg];
+                searchPath = [[NSString alloc] initWithUTF8String:optarg];
                 searchPath = [searchPath stringByExpandingTildeInPath];
                 searchURL = [NSURL fileURLWithPath:searchPath];
                 break;
@@ -71,6 +74,11 @@
                 
             case '6': {
                 target6 = YES;
+                break;
+            }
+                
+            case 'u': {
+                uberMode = YES;
                 break;
             }
                 
@@ -101,6 +109,8 @@
         
         CGUCodeGenTool *target = [self new];
         target.inputURL = url;
+        target.uberMode = uberMode;
+        target.searchPath = searchPath;
         target.targetiOS6 = target6;
         target.classPrefix = classPrefix;
         target.toolName = [[NSString stringWithUTF8String:argv[0]] lastPathComponent];
@@ -129,14 +139,24 @@
     NSURL *interfaceURL = [currentDirectory URLByAppendingPathComponent:classNameH];
     NSURL *implementationURL = [currentDirectory URLByAppendingPathComponent:classNameM];
     
-    [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    [self.implementationContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
+    if (!self.uberMode) {
+        // uber mode generates classes, so we cannot reorder the lines of generated code
+        [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2];
+        }];
+        [self.implementationContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2];
+        }];
+    }
     
     NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n\n", self.inputURL.lastPathComponent, self.toolName];
+    
+    // remove duplicates
+    NSArray *uniqueImports = [[NSSet setWithArray:self.interfaceImports] allObjects];
+    for (NSString *import in uniqueImports) {
+        [interface appendFormat:@"#import %@\n", import];
+    }
+    [interface appendString:@"\n"];
 
     if (self.skipClassDeclaration) {
         [interface appendString:[self.interfaceContents componentsJoinedByString:@""]];

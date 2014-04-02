@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="INF-sx-8CY">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="INF-sx-8CY">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
         <!--Master View Controller-->
@@ -51,14 +51,24 @@
                     </collectionView>
                     <navigationItem key="navigationItem" id="teh-qR-8dZ">
                         <nil key="title"/>
+                        <barButtonItem key="leftBarButtonItem" title="Perform" id="K89-30-M1C">
+                            <connections>
+                                <action selector="performTapped:" destination="UH6-2k-Soh" id="L5J-Br-hyu"/>
+                            </connections>
+                        </barButtonItem>
                         <slider key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="120" minValue="0.0" maxValue="160" id="sg9-qZ-59e">
-                            <rect key="frame" x="8" y="8" width="304" height="29"/>
+                            <rect key="frame" x="76" y="8" width="191" height="29"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="minimumTrackTintColor" red="0.0" green="0.74117648601531982" blue="0.64313727617263794" alpha="1" colorSpace="deviceRGB"/>
                             <connections>
                                 <action selector="sliderValueChanged:" destination="UH6-2k-Soh" eventType="valueChanged" id="Tfs-NO-5oy"/>
                             </connections>
                         </slider>
+                        <barButtonItem key="rightBarButtonItem" title="Push" id="iCq-LL-Epu">
+                            <connections>
+                                <action selector="pushTapped:" destination="UH6-2k-Soh" id="d84-fn-Y28"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="cellSizeSlider" destination="sg9-qZ-59e" id="gwU-KP-c6P"/>
@@ -71,7 +81,7 @@
         <!--Detail View Controller - Detail-->
         <scene sceneID="Cn3-H9-jdl">
             <objects>
-                <viewController title="Detail" id="Ah7-4n-0Wa" customClass="CGTADetailViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Detail View Controller" title="Detail" id="Ah7-4n-0Wa" customClass="CGTADetailViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="EK1-eN-tCq"/>
                         <viewControllerLayoutGuide type="bottom" id="wQM-DP-Tgk"/>
