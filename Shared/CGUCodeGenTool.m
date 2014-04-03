@@ -34,10 +34,9 @@
     NSString *searchPath = nil;
     NSString *classPrefix = @"";
     BOOL target6 = NO;
-    BOOL uberMode = NO;
     NSMutableArray *inputURLs = [NSMutableArray array];
     
-    while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6u")) != -1) {
+    while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6")) != -1) {
         switch (opt) {
             case 'h': {
                 printf("Usage: %s [-6] [-u] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
@@ -47,7 +46,6 @@
                 printf("    -o <path>   Output files at <path>\n");
                 printf("    -f <path>   Search for *.%s folders starting from <path>\n", [[self inputFileExtension] UTF8String]);
                 printf("    -p <prefix> Use <prefix> as the class prefix in the generated code\n");
-                printf("    -u          Uber mode\n");
                 printf("    -h          Print this help and exit\n");
                 printf("    <paths>     Input files; this and/or -f are required.\n");
                 return 0;
@@ -74,11 +72,6 @@
                 
             case '6': {
                 target6 = YES;
-                break;
-            }
-                
-            case 'u': {
-                uberMode = YES;
                 break;
             }
                 
@@ -109,7 +102,6 @@
         
         CGUCodeGenTool *target = [self new];
         target.inputURL = url;
-        target.uberMode = uberMode;
         target.searchPath = searchPath;
         target.targetiOS6 = target6;
         target.classPrefix = classPrefix;
@@ -139,24 +131,26 @@
     NSURL *interfaceURL = [currentDirectory URLByAppendingPathComponent:classNameH];
     NSURL *implementationURL = [currentDirectory URLByAppendingPathComponent:classNameM];
     
-    if (!self.uberMode) {
-        // uber mode generates classes, so we cannot reorder the lines of generated code
-        [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-            return [obj1 compare:obj2];
-        }];
-        [self.implementationContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-            return [obj1 compare:obj2];
-        }];
-    }
+    // uber mode generates classes, so we cannot reorder the lines of generated code
+    [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
+    [self.implementationContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
     
     NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n\n", self.inputURL.lastPathComponent, self.toolName];
     
-    // remove duplicates
-    NSArray *uniqueImports = [[NSSet setWithArray:self.interfaceImports] allObjects];
+    NSArray *uniqueImports = [[NSSet setWithArray:self.interfaceImports] allObjects]; // removes duplicate imports
     for (NSString *import in uniqueImports) {
         [interface appendFormat:@"#import %@\n", import];
     }
     [interface appendString:@"\n"];
+    
+    for (NSString *className in self.classes) {
+        CGUClass *class = self.classes[className];
+        [interface appendFormat:@"%@\n", [class interfaceCode]];
+    }
 
     if (self.skipClassDeclaration) {
         [interface appendString:[self.interfaceContents componentsJoinedByString:@""]];
@@ -169,6 +163,12 @@
     }
     
     NSMutableString *implementation = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n\n", self.inputURL.lastPathComponent, self.toolName, classNameH];
+    
+    for (NSString *className in self.classes) {
+        CGUClass *class = self.classes[className];
+        [implementation appendFormat:@"%@\n", [class implementationCode]];
+    }
+
     if (self.skipClassDeclaration) {
         [implementation appendString:[self.implementationContents componentsJoinedByString:@""]];
     } else {
@@ -195,6 +195,105 @@
     [mutableKey replaceOccurrencesOfString:@" " withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
     [mutableKey replaceOccurrencesOfString:@"~" withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
     return [mutableKey copy];
+}
+
+@end
+
+
+
+@implementation CGUClass
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.methods = [NSMutableArray array];
+    }
+    return self;
+}
+
+- (void)sortMethods {
+    [self.methods sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        CGUMethod *method1 = obj1;
+        CGUMethod *method2 = obj2;
+        
+        // 1. sort class methods first, then instance methods
+        if (method1.classMethod && !method2.classMethod) {
+            return NSOrderedAscending;
+        } else if (!method1.classMethod && method2.classMethod) {
+            return NSOrderedDescending;
+        }
+        
+        // 2. sort by the method name
+        return [method1.nameAndArguments caseInsensitiveCompare:method2.nameAndArguments];
+    }];
+}
+
+- (NSString *)interfaceCode {
+    if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
+        // no need to print a category/extension if it has no methods
+        return @"";
+    }
+    
+    [self sortMethods];
+    
+    NSMutableString *result = [NSMutableString string];
+    if (self.classType == CGUClassType_Definition) {
+        [result appendFormat:@"@interface %@ : %@\n", self.name, self.superClassName];
+    } else {
+        [result appendFormat:@"@interface %@ (%@)\n", self.name, self.categoryName];
+    }
+    for (CGUMethod *method in self.methods) {
+        [result appendString:[method interfaceCode]];
+        [result appendString:@"\n"];
+    }
+    [result appendFormat:@"@end\n"];
+    return result;
+}
+
+- (NSString *)implementationCode {
+    if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
+        // no need to print a category/extension if it has no methods
+        return @"";
+    }
+
+    [self sortMethods];
+    
+    NSMutableString *result = [NSMutableString string];
+    if (self.classType == CGUClassType_Definition) {
+        [result appendFormat:@"@implementation %@\n", self.name];
+    } else {
+        [result appendFormat:@"@implementation %@ (%@)\n", self.name, self.categoryName];
+    }
+    for (CGUMethod *method in self.methods) {
+        [result appendString:[method implementationCode]];
+        [result appendString:@"\n"];
+    }
+    [result appendFormat:@"@end\n"];
+    return result;
+}
+
+- (CGUClassType)classType {
+    if (self.superClassName) {
+        return CGUClassType_Definition;
+    } else {
+        return self.categoryName.length == 0 ? CGUClassType_Extension : CGUClassType_Category;
+    }
+}
+
+@end
+
+
+
+@implementation CGUMethod
+
+- (NSString *)interfaceCode {
+    return [NSString stringWithFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];
+}
+
+- (NSString *)implementationCode {
+    // TODO: indent each line in the body?
+    return [NSString stringWithFormat:@"%@ (%@)%@ {\n%@\n}", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments, self.body];
 }
 
 @end

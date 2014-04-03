@@ -9,6 +9,9 @@
 
 #import "IDStoryboardDumper.h"
 
+@interface IDStoryboardDumper ()
+@property (strong) NSMutableDictionary *classesImported;
+@end
 
 @implementation NSString (IDStoryboardAddition)
 
@@ -52,14 +55,40 @@
     return @"storyboard";
 }
 
-- (NSString *)classTypeForViewControllerElement:(NSXMLElement *)viewControllerElement
+/// element is any that have a customClass attribute and contain the valid default class name as their name (e.g. viewController, or tableViewCell)
+- (NSString *)classTypeForElement:(NSXMLElement *)element importedCustomClass:(BOOL *)importedCustomClass
 {
-    // element.name is the view controller type (e.g. tableViewController, navigationController, etc.)
-    return [[viewControllerElement attributeForName:@"customClass"] stringValue] ?: [@"UI" stringByAppendingString:[viewControllerElement.name IDS_titlecaseString]];
+    if (importedCustomClass) {
+        *importedCustomClass = NO;
+    }
+    
+    NSString *customClass = [[element attributeForName:@"customClass"] stringValue];
+    if (customClass && [self importClass:customClass]) {
+        // we can use the custom class
+        if (importedCustomClass) {
+            *importedCustomClass = YES;
+        }
+        return customClass;
+    } else {
+        // element.name is the view controller type (e.g. tableViewController, navigationController, etc.)
+        NSString *defaultClass = [@"UI" stringByAppendingString:[element.name IDS_titlecaseString]];
+        return defaultClass;
+    }
 }
 
-- (void)importClass:(NSString *)className
+/// You may call this method multiple times with the same className without it having to search the search path each time. It will only search once and cache the result.
+- (BOOL)importClass:(NSString *)className
 {
+    /// Keys: NSString of class name; Values: @(BOOL) stating if it was successfully imported or not
+    if (self.classesImported == nil) {
+        self.classesImported = [NSMutableDictionary dictionary];
+    }
+    
+    if (self.classesImported[className]) {
+        // if we have arleady tried searching for this class, there is no need to search for it again
+        return [self.classesImported[className] boolValue];
+    }
+    
     NSTask *findFiles = [NSTask new];
     [findFiles setLaunchPath:@"/usr/bin/grep"];
     [findFiles setCurrentDirectoryPath:self.searchPath];
@@ -76,14 +105,22 @@
     
     NSString *string = [[NSString alloc] initWithData: data encoding:NSUTF8StringEncoding];
     NSArray *lines = [string componentsSeparatedByString:@"\n"];
+    BOOL successfullyImported = NO;
     for (NSString *line in lines) {
         NSURL *path = [NSURL URLWithString:line];
         NSString *importFile = [path lastPathComponent];
         if ([importFile hasSuffix:@".h"]) {
             [self.interfaceImports addObject:[NSString stringWithFormat:@"\"%@\"", importFile]];
+            successfullyImported = YES;
             break;
         }
     }
+    
+    if (!successfullyImported) {
+        NSLog(@"Unable to find class interface for '%@'. Reverting to global string constant behavior.", className);
+    }
+    self.classesImported[className] = @(successfullyImported);
+    return successfullyImported;
 }
 
 - (void)startWithCompletionHandler:(dispatch_block_t)completionBlock;
@@ -104,174 +141,149 @@
     [identifiers addObjectsFromArray:reuseIdentifiers];
     [identifiers addObjectsFromArray:segueIdentifiers];
     
+    self.interfaceImports = [NSMutableArray array];
+    self.classes = [NSMutableDictionary dictionary];
     self.interfaceContents = [NSMutableArray array];
     self.implementationContents = [NSMutableArray array];
-
-    NSMutableDictionary *uniqueKeys = [NSMutableDictionary dictionary];
-    uniqueKeys[[NSString stringWithFormat:@"%@%@StoryboardName", self.classPrefix, storyboardName]] = storyboardFilename;
     
-    if (self.uberMode) {
-        self.interfaceImports = [NSMutableArray array];
-        NSMutableArray *viewControllers = [NSMutableArray array];;
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//viewController" error:&error]];
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//tableViewController" error:&error]];
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//collectionViewController" error:&error]];
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//pageViewController" error:&error]];
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//navigationController" error:&error]];
-        [viewControllers addObjectsFromArray:[document nodesForXPath:@"//tabBarController" error:&error]];
-        // TODO: add support for GLKViewControllers
-        
-        [viewControllers sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-            NSString *storyboardIdentifier1 = [[[obj1 attributeForName:@"storyboardIdentifier"] stringValue] IDS_titlecaseString];
-            NSString *storyboardIdentifier2 = [[[obj2 attributeForName:@"storyboardIdentifier"] stringValue] IDS_titlecaseString];
-            return [storyboardIdentifier1 caseInsensitiveCompare:storyboardIdentifier2];
-        }];
-        
-        NSString *nonUberStoryboardNameKey = [NSString stringWithFormat:@"%@%@StoryboardName", self.classPrefix, storyboardName];
-        [uniqueKeys removeObjectForKey:nonUberStoryboardNameKey];
-        NSString *storyboardClassName = [self.classPrefix IDS_asPrefixOf:[NSString stringWithFormat:@"%@Storyboard", storyboardName]];
-        
-        // output @interface MYMainStoryboard : NSObject
-        [self.interfaceContents addObject:[NSString stringWithFormat:@"@interface %@ : NSObject\n", storyboardClassName]];
-        [self.implementationContents addObject:[NSString stringWithFormat:@"@implementation %@\n", storyboardClassName]];
-        
-        // output + [MYMainStoryboard storyboard]
-        [self.interfaceContents addObject:@"+ (UIStoryboard *)storyboard;\n"];
-        [self.implementationContents addObject:@"+ (UIStoryboard *)storyboard {\n"];
-        [self.implementationContents addObject:[NSString stringWithFormat:@"    return [UIStoryboard storyboardWithName:@\"%@\" bundle:nil];\n", storyboardName]];
-        [self.implementationContents addObject:@"}\n"];
-        
-        // output + [MYMainStoryboard instantiateInitialViewController]
-        NSString *initialViewControllerID = [[[document rootElement] attributeForName:@"initialViewController"] stringValue];
-        if (initialViewControllerID) {
-            for (NSXMLElement *viewControllerElement in viewControllers) {
-                if (![[[viewControllerElement attributeForName:@"id"] stringValue] isEqualToString:initialViewControllerID])
-                    continue;
-                
+    
+    NSMutableArray *viewControllers = [NSMutableArray array];;
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//viewController" error:&error]];
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//tableViewController" error:&error]];
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//collectionViewController" error:&error]];
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//pageViewController" error:&error]];
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//navigationController" error:&error]];
+    [viewControllers addObjectsFromArray:[document nodesForXPath:@"//tabBarController" error:&error]];
+    // TODO: add support for GLKViewControllers
+    
+    [viewControllers sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        NSString *storyboardIdentifier1 = [[[obj1 attributeForName:@"storyboardIdentifier"] stringValue] IDS_titlecaseString];
+        NSString *storyboardIdentifier2 = [[[obj2 attributeForName:@"storyboardIdentifier"] stringValue] IDS_titlecaseString];
+        return [storyboardIdentifier1 caseInsensitiveCompare:storyboardIdentifier2];
+    }];
+    
+    CGUClass *storyboardClass = [CGUClass new];
+    storyboardClass.name = [self.classPrefix IDS_asPrefixOf:[NSString stringWithFormat:@"%@Storyboard", storyboardName]];
+    storyboardClass.superClassName = @"NSObject";
+    self.classes[storyboardClass.name] = storyboardClass;
+    
+    // output + [MYMainStoryboard storyboard]
+    CGUMethod *storyboardMethod = [CGUMethod new];
+    storyboardMethod.classMethod = YES;
+    storyboardMethod.returnType = @"UIStoryboard *";
+    storyboardMethod.nameAndArguments = @"storyboard";
+    storyboardMethod.body = [NSString stringWithFormat:@"    return [UIStoryboard storyboardWithName:@\"%@\" bundle:nil];", storyboardName];
+    [storyboardClass.methods addObject:storyboardMethod];
+    
+    NSString *initialViewControllerID = [[[document rootElement] attributeForName:@"initialViewController"] stringValue];
+    if (initialViewControllerID) {
+        NSString *initialViewControllerClass = nil;
+        for (NSXMLElement *viewControllerElement in viewControllers) {
+            if ([[[viewControllerElement attributeForName:@"id"] stringValue] isEqualToString:initialViewControllerID]) {
                 // found initial view controller
-                NSString *customClass = [self classTypeForViewControllerElement:viewControllerElement];
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"+ (%@ *)instantiateInitialViewController;\n", customClass]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"+ (%@ *)instantiateInitialViewController {\n", customClass]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    return [[self storyboard] instantiateInitialViewController];\n"]];
-                [self.implementationContents addObject:@"}\n"];
+                initialViewControllerClass = [self classTypeForElement:viewControllerElement importedCustomClass:NULL];
                 break;
             }
         }
         
-        for (NSXMLElement *viewControllerElement in viewControllers) {
-            NSString *storyboardIdentifier = [[viewControllerElement attributeForName:@"storyboardIdentifier"] stringValue];
-            NSString *customClass = [[viewControllerElement attributeForName:@"customClass"] stringValue];
-            if (customClass) {
-                // output #import "MYCustomViewController.h"
-                [self importClass:customClass];
-            }
-            
-            if (!storyboardIdentifier) {
-                continue;
-            }
-            
-            [identifiers removeObject:storyboardIdentifier]; // prevent user from using the old strings
-            NSString *className = [self classTypeForViewControllerElement:viewControllerElement];
-
-            
-            NSString *methodName = [@"instantiate" stringByAppendingString:[[storyboardIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Controller"]];
-            
-            // output + [MYMainStoryboard instatiateMyCustomViewController]
-            [self.interfaceContents addObject:[NSString stringWithFormat:@"+ (%@ *)%@;\n", className, methodName]];
-            [self.implementationContents addObject:[NSString stringWithFormat:@"+ (%@ *)%@ {\n", className, methodName]];
-            [self.implementationContents addObject:[NSString stringWithFormat:@"    return [[self storyboard] instantiateViewControllerWithIdentifier:@\"%@\"];\n", storyboardIdentifier]];
-            [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
+        if (initialViewControllerClass) {
+            // output + [MYMainStoryboard instantiateInitialViewController]
+            CGUMethod *instantiateInitialViewControllerMethod = [CGUMethod new];
+            instantiateInitialViewControllerMethod.classMethod = YES;
+            instantiateInitialViewControllerMethod.returnType = [NSString stringWithFormat:@"%@ *", initialViewControllerClass];
+            instantiateInitialViewControllerMethod.nameAndArguments = @"instantiateInitialViewController";
+            instantiateInitialViewControllerMethod.body = @"    return [[self storyboard] instantiateInitialViewController];";
+            [storyboardClass.methods addObject:instantiateInitialViewControllerMethod];
+        } else {
+            NSLog(@"Warning: Initial view controller exists, but wasn't found in the storyboard: %@", initialViewControllerID);
         }
-        [self.interfaceContents addObject:@"@end\n\n"];
-        [self.implementationContents addObject:@"@end\n\n"];
+    }
+    
+    for (NSXMLElement *viewControllerElement in viewControllers) {
+        NSString *storyboardIdentifier = [[viewControllerElement attributeForName:@"storyboardIdentifier"] stringValue];
+        BOOL importedCustomClass = NO;
+        NSString *className = [self classTypeForElement:viewControllerElement importedCustomClass:&importedCustomClass];
+        if (storyboardIdentifier) {
+            [identifiers removeObject:storyboardIdentifier]; // prevent user from using the old string, they can now access it via [MYMainStoryboard instantiate...]
+
+            // output + [MYMainStoryboard instantiateMyCustomViewController]
+            CGUMethod *instantiateCustomViewControllerMethod = [CGUMethod new];
+            instantiateCustomViewControllerMethod.classMethod = YES;
+            instantiateCustomViewControllerMethod.returnType = [NSString stringWithFormat:@"%@ *", className];
+            instantiateCustomViewControllerMethod.nameAndArguments = [@"instantiate" stringByAppendingString:[[storyboardIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Controller"]];
+            instantiateCustomViewControllerMethod.body = [NSString stringWithFormat:@"    return [[self storyboard] instantiateViewControllerWithIdentifier:@\"%@\"];", storyboardIdentifier];
+            [storyboardClass.methods addObject:instantiateCustomViewControllerMethod];
+        }
         
-        NSInteger uniqueNumber = 0; // TODO: instead of using this hack, combine all the methods into a single category. Also deal with multiple storyboards that reference the same class.
-        for (NSXMLElement *viewControllerElement in viewControllers) {
-            NSString *customClass = [[viewControllerElement attributeForName:@"customClass"] stringValue];
-            if (!customClass) {
-                continue;
-            }
-            
+        if (importedCustomClass) {
             NSArray *segueIdentifiers = [[viewControllerElement nodesForXPath:@".//segue/@identifier" error:&error] valueForKey:NSStringFromSelector(@selector(stringValue))];
             NSArray *reuseIdentifiers = [viewControllerElement nodesForXPath:@".//*[@reuseIdentifier]" error:&error];
-            if (segueIdentifiers.count == 0 && reuseIdentifiers.count == 0) {
-                // nothing to output
-                continue;
-            }
             
-            // output @interface MYCustomViewController (ObjcCodeGenUtils)
-            NSString *categoryName = [NSString stringWithFormat:@"ObjcCodeGenUtils_%@_%ld", storyboardName, (long)uniqueNumber++];
-            [self.interfaceContents addObject:[NSString stringWithFormat:@"@interface %@ (%@)\n", customClass, categoryName]];
-            [self.implementationContents addObject:[NSString stringWithFormat:@"@implementation %@ (%@)\n", customClass, categoryName]];
+            CGUClass *viewControllerClassCategory = self.classes[className]; // we may see the same class twice, so it is storyed in a dictionary
+            if (viewControllerClassCategory == nil) {
+                viewControllerClassCategory = [CGUClass new];
+                viewControllerClassCategory.name = className;
+                viewControllerClassCategory.categoryName = [NSString stringWithFormat:@"ObjcCodeGenUtils_%@", storyboardName];
+                self.classes[className] = viewControllerClassCategory;
+            }
             
             for (NSString *segueIdentifier in segueIdentifiers) {
                 [identifiers removeObject:segueIdentifier]; // we don't want the user accessing this segue via the old method
                 
-                // output + [(MYCustomViewController *) myCustomSegueIdentifier]
-                NSString *segueIdentifierMethodName = [[[segueIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Segue"] stringByAppendingString:@"Identifier"];
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"+ (NSString *)%@;\n", segueIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"+ (NSString *)%@ {\n", segueIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    return @\"%@\";\n", segueIdentifier]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
-                
                 // output - [(MYCustomViewController *) myCustomSegueIdentifier]
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"- (NSString *)%@;\n", segueIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"- (NSString *)%@ {\n", segueIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    return @\"%@\";\n", segueIdentifier]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
+                CGUMethod *segueIdentifierMethod = [CGUMethod new];
+                segueIdentifierMethod.returnType = @"NSString *";
+                segueIdentifierMethod.nameAndArguments = [[[segueIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Segue"] stringByAppendingString:@"Identifier"];
+                segueIdentifierMethod.body = [NSString stringWithFormat:@"    return @\"%@\";", segueIdentifier];
+                [viewControllerClassCategory.methods addObject:segueIdentifierMethod];
                 
                 // output - [(MYCustomViewController *) performMyCustomSegue]
-                NSString *performSegueMethodName = [[segueIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Segue"];
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"- (void)perform%@;\n", performSegueMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"- (void)perform%@ {\n", performSegueMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    [self performSegueWithIdentifier:[self %@] sender:nil];\n", segueIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
+                CGUMethod *performSegueMethod = [CGUMethod new];
+                performSegueMethod.nameAndArguments = [@"perform" stringByAppendingString:[[segueIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Segue"]];
+                performSegueMethod.body = [NSString stringWithFormat:@"    [self performSegueWithIdentifier:[self %@] sender:nil];", segueIdentifierMethod.nameAndArguments];
+                [viewControllerClassCategory.methods addObject:performSegueMethod];
             }
             
             for (NSXMLElement *reuseIdentifierElement in reuseIdentifiers) {
-                NSString *customClass = [[reuseIdentifierElement attributeForName:@"customClass"] stringValue];
-                if (customClass) {
-                    [self importClass:customClass];
-                }
-                NSString *elementName = reuseIdentifierElement.name; // E.g. collectionViewCell, tableViewCell, etc.
-                NSString *className = customClass ?: [@"UI" stringByAppendingString:[reuseIdentifierElement.name IDS_titlecaseString]];
                 NSString *reuseIdentifier = [[reuseIdentifierElement attributeForName:@"reuseIdentifier"] stringValue];
                 [identifiers removeObject:reuseIdentifier];
                 
+                // output - (NSString *)[(MYCustomViewController *) myCustomCellIdentifier];
+                CGUMethod *reuseIdentifierMethod = [CGUMethod new];
+                reuseIdentifierMethod.returnType = @"NSString *";
+                reuseIdentifierMethod.nameAndArguments = [[reuseIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Identifier"];
+                reuseIdentifierMethod.body = [NSString stringWithFormat:@"    return @\"%@\";", reuseIdentifier];
+                [viewControllerClassCategory.methods addObject:reuseIdentifierMethod];
+
+                NSString *elementName = reuseIdentifierElement.name; // E.g. collectionViewCell, tableViewCell, etc.
                 NSString *methodNameSecondArgument = nil;
                 NSString *code = nil;
-                
                 if ([elementName isEqualToString:@"tableViewCell"]) {
                     methodNameSecondArgument = @"ofTableView:(UITableView *)tableView";
                     code = [NSString stringWithFormat:@"[tableView dequeueReusableCellWithIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
                 } else if ([elementName isEqualToString:@"collectionViewCell"] || [elementName isEqualToString:@"collectionReusableView"]) {
                     methodNameSecondArgument = @"ofCollectionView:(UICollectionView *)collectionView";
                     code = [NSString stringWithFormat:@"[collectionView dequeueReusableCellWithReuseIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
+                } else {
+                    NSLog(@"Warning: Unknown reuse identifier %@.", elementName);
+                    continue;
                 }
-                // TODO: add support for     [collectionView dequeueReusableSupplementaryViewOfKind:(NSString *) withReuseIdentifier:(NSString *) forIndexPath:(NSIndexPath *)]
-                
-                // output - (NSString *)[(MYCustomViewController *) myCustomCellIdentifier];
-                NSString *reuseIdentifierMethodName = [[reuseIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Identifier"];
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"- (NSString *)%@;\n", reuseIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"- (NSString *)%@ {\n", reuseIdentifierMethodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    return @\"%@\";\n", reuseIdentifier]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
-                
-                
+
+                NSString *reuseIdentifierClassName = [self classTypeForElement:reuseIdentifierElement importedCustomClass:NULL];
+
                 // output - (MYCustomCell *)[(MYCustomViewController *) dequeueMyCustomCellForIndexPath:ofTableView:]
-                NSString *methodName = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [[reuseIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Cell"], methodNameSecondArgument];
-                [self.interfaceContents addObject:[NSString stringWithFormat:@"- (%@ *)%@;\n", className, methodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"- (%@ *)%@ {\n", className, methodName]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"    return %@;\n", code]];
-                [self.implementationContents addObject:[NSString stringWithFormat:@"}\n"]];
+                CGUMethod *dequeueMethod = [CGUMethod new];
+                dequeueMethod.returnType = [NSString stringWithFormat:@"%@ *", reuseIdentifierClassName];
+                dequeueMethod.nameAndArguments = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [[reuseIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Cell"], methodNameSecondArgument];
+                dequeueMethod.body = [NSString stringWithFormat:@"    return %@;", code];
+                [viewControllerClassCategory.methods addObject:dequeueMethod];
+                
+                // TODO: add support for [collectionView dequeueReusableSupplementaryViewOfKind:(NSString *) withReuseIdentifier:(NSString *) forIndexPath:(NSIndexPath *)]
             }
-            
-            
-            [self.interfaceContents addObject:@"@end\n\n"];
-            [self.implementationContents addObject:@"@end\n\n"];
         }
     }
     
+    NSMutableDictionary *uniqueKeys = [NSMutableDictionary dictionary];
     for (NSString *identifier in identifiers) {
         NSString *key = [NSString stringWithFormat:@"%@%@Storyboard%@Identifier", self.classPrefix, storyboardName, [identifier IDS_titlecaseString]];
         uniqueKeys[key] = identifier;

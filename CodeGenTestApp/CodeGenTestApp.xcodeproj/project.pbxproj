@@ -21,8 +21,8 @@
 		A881854118A9B622002803FC /* CGTAImagesCatalog+RuntimeHackery.m in Sources */ = {isa = PBXBuildFile; fileRef = A838793518A05B6D00B386D6 /* CGTAImagesCatalog+RuntimeHackery.m */; };
 		A881854218A9B622002803FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A83878E518A0367C00B386D6 /* main.m */; };
 		A881854418A9B663002803FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A83878EB18A0367C00B386D6 /* Main.storyboard */; };
-		AA24EC5A18EB4F8E00DB0F94 /* UberMode.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA24EC5918EB4F8E00DB0F94 /* UberMode.storyboard */; };
-		AA24EC5D18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.m in Sources */ = {isa = PBXBuildFile; fileRef = AA24EC5C18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.m */; };
+		AA24EC5A18EB4F8E00DB0F94 /* MoreExamples.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA24EC5918EB4F8E00DB0F94 /* MoreExamples.storyboard */; };
+		AAA9F41518ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA9F41418ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,9 +97,9 @@
 		A881852518A9B512002803FC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A881852718A9B520002803FC /* codegenutils.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = codegenutils.xcodeproj; path = ../codegenutils.xcodeproj; sourceTree = "<group>"; };
 		A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		AA24EC5918EB4F8E00DB0F94 /* UberMode.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = UberMode.storyboard; sourceTree = "<group>"; };
-		AA24EC5B18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGTAUberModeStoryboardIdentifiers.h; sourceTree = "<group>"; };
-		AA24EC5C18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGTAUberModeStoryboardIdentifiers.m; sourceTree = "<group>"; };
+		AA24EC5918EB4F8E00DB0F94 /* MoreExamples.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MoreExamples.storyboard; sourceTree = "<group>"; };
+		AAA9F41318ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGTAMoreExamplesStoryboardIdentifiers.h; sourceTree = "<group>"; };
+		AAA9F41418ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGTAMoreExamplesStoryboardIdentifiers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,7 +122,7 @@
 				A83878E818A0367C00B386D6 /* CGTAAppDelegate.h */,
 				A83878E918A0367C00B386D6 /* CGTAAppDelegate.m */,
 				A83878EB18A0367C00B386D6 /* Main.storyboard */,
-				AA24EC5918EB4F8E00DB0F94 /* UberMode.storyboard */,
+				AA24EC5918EB4F8E00DB0F94 /* MoreExamples.storyboard */,
 				A83878F418A0367C00B386D6 /* Images.xcassets */,
 				A83878EE18A0367C00B386D6 /* CGTAMasterViewController.h */,
 				A83878EF18A0367C00B386D6 /* CGTAMasterViewController.m */,
@@ -152,8 +152,8 @@
 				A838791518A0455E00B386D6 /* CGTAImagesCatalog.m */,
 				A838793118A0557E00B386D6 /* CGTAMainStoryboardIdentifiers.h */,
 				A838793218A0557E00B386D6 /* CGTAMainStoryboardIdentifiers.m */,
-				AA24EC5B18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.h */,
-				AA24EC5C18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.m */,
+				AAA9F41318ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.h */,
+				AAA9F41418ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m */,
 				A838791818A04AB300B386D6 /* CGTATestAppColorList.h */,
 				A838791918A04AB300B386D6 /* CGTATestAppColorList.m */,
 				A838793418A05B6D00B386D6 /* CGTAImagesCatalog+RuntimeHackery.h */,
@@ -288,7 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A881854418A9B663002803FC /* Main.storyboard in Resources */,
-				AA24EC5A18EB4F8E00DB0F94 /* UberMode.storyboard in Resources */,
+				AA24EC5A18EB4F8E00DB0F94 /* MoreExamples.storyboard in Resources */,
 				A881853A18A9B614002803FC /* Images.xcassets in Resources */,
 				A83878E418A0367C00B386D6 /* InfoPlist.strings in Resources */,
 			);
@@ -309,7 +309,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "DERIVED_SOURCES=\"$SRCROOT/Derived Sources\"\nTOOL_PATH=$BUILD_ROOT/$CONFIGURATION\n$TOOL_PATH/objc-assetgen -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n$TOOL_PATH/objc-colordump -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n$TOOL_PATH/objc-identifierconstants -u -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n";
+			shellScript = "DERIVED_SOURCES=\"$SRCROOT/Derived Sources\"\nTOOL_PATH=$BUILD_ROOT/$CONFIGURATION\n$TOOL_PATH/objc-assetgen -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n$TOOL_PATH/objc-colordump -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n$TOOL_PATH/objc-identifierconstants -f \"$SRCROOT\" -o \"$DERIVED_SOURCES\" -p CGTA\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -318,11 +318,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AAA9F41518ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m in Sources */,
 				A881853918A9B609002803FC /* CGTAAppDelegate.m in Sources */,
 				A881853C18A9B622002803FC /* CGTAMasterViewController.m in Sources */,
 				A881853F18A9B622002803FC /* CGTAMainStoryboardIdentifiers.m in Sources */,
 				A881854118A9B622002803FC /* CGTAImagesCatalog+RuntimeHackery.m in Sources */,
-				AA24EC5D18EB537300DB0F94 /* CGTAUberModeStoryboardIdentifiers.m in Sources */,
 				A881853E18A9B622002803FC /* CGTAImagesCatalog.m in Sources */,
 				A881854018A9B622002803FC /* CGTATestAppColorList.m in Sources */,
 				A881854218A9B622002803FC /* main.m in Sources */,
