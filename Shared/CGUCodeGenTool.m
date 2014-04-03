@@ -11,10 +11,25 @@
 
 #import <libgen.h>
 
+typedef NS_ENUM(NSInteger, CGUClassType) {
+    CGUClassType_Definition,
+    CGUClassType_Extension,
+    CGUClassType_Category
+};
 
 @interface CGUCodeGenTool ()
 
 @property (copy) NSString *toolName;
+
+@end
+
+@interface CGUClass ()
+
+/// The class type is determined by the following:
+/// - If there is a superClassName, this is a class definition
+/// - If there is a clategoryName, this is a category
+/// - Otherwise, this is a class extension
+@property (readonly) CGUClassType classType;
 
 @end
 
@@ -39,7 +54,7 @@
     while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6")) != -1) {
         switch (opt) {
             case 'h': {
-                printf("Usage: %s [-6] [-u] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
+                printf("Usage: %s [-6] [-o <path>] [-f <path>] [-p <prefix>] [<paths>]\n", basename((char *)argv[0]));
                 printf("       %s -h\n\n", basename((char *)argv[0]));
                 printf("Options:\n");
                 printf("    -6          Target iOS 6 in addition to iOS 7\n");
@@ -131,7 +146,6 @@
     NSURL *interfaceURL = [currentDirectory URLByAppendingPathComponent:classNameH];
     NSURL *implementationURL = [currentDirectory URLByAppendingPathComponent:classNameM];
     
-    // uber mode generates classes, so we cannot reorder the lines of generated code
     [self.interfaceContents sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         return [obj1 compare:obj2];
     }];
@@ -141,8 +155,7 @@
     
     NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n\n", self.inputURL.lastPathComponent, self.toolName];
     
-    NSArray *uniqueImports = [[NSSet setWithArray:self.interfaceImports] allObjects]; // removes duplicate imports
-    for (NSString *import in uniqueImports) {
+    for (NSString *import in self.interfaceImports) {
         [interface appendFormat:@"#import %@\n", import];
     }
     [interface appendString:@"\n"];
@@ -203,7 +216,7 @@
 
 @implementation CGUClass
 
-- (instancetype)init
+- (instancetype)init;
 {
     self = [super init];
     if (self) {
@@ -212,7 +225,8 @@
     return self;
 }
 
-- (void)sortMethods {
+- (void)sortMethods;
+{
     [self.methods sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
         CGUMethod *method1 = obj1;
         CGUMethod *method2 = obj2;
@@ -229,7 +243,8 @@
     }];
 }
 
-- (NSString *)interfaceCode {
+- (NSString *)interfaceCode;
+{
     if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
         // no need to print a category/extension if it has no methods
         return @"";
@@ -251,7 +266,8 @@
     return result;
 }
 
-- (NSString *)implementationCode {
+- (NSString *)implementationCode;
+{
     if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
         // no need to print a category/extension if it has no methods
         return @"";
@@ -273,7 +289,8 @@
     return result;
 }
 
-- (CGUClassType)classType {
+- (CGUClassType)classType;
+{
     if (self.superClassName) {
         return CGUClassType_Definition;
     } else {
@@ -287,11 +304,13 @@
 
 @implementation CGUMethod
 
-- (NSString *)interfaceCode {
+- (NSString *)interfaceCode;
+{
     return [NSString stringWithFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];
 }
 
-- (NSString *)implementationCode {
+- (NSString *)implementationCode;
+{
     // TODO: indent each line in the body?
     return [NSString stringWithFormat:@"%@ (%@)%@ {\n%@\n}", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments, self.body];
 }

@@ -9,11 +9,6 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, CGUClassType) {
-    CGUClassType_Definition,
-    CGUClassType_Extension,
-    CGUClassType_Category
-};
 
 @interface CGUCodeGenTool : NSObject
 
@@ -29,7 +24,7 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 @property (copy) NSString *className;
 /// An array of strings such as "<Foundation/Foundation.h>" which will be imported at the top of the .h file.
-@property (strong) NSMutableArray *interfaceImports;
+@property (strong) NSMutableSet *interfaceImports;
 /// A dictionary of class names as keys (NSString *), and CGUClass instances as values.
 @property (strong) NSMutableDictionary *classes;
 @property (strong) NSMutableArray *interfaceContents;
@@ -47,11 +42,6 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 @interface CGUClass : NSObject
 
-/// The class type is determined by the following:
-/// - If there is a superClassName, this is a class definition
-/// - If there is a clategoryName, this is a category
-/// - Otherwise, this is a class extension
-@property (readonly) CGUClassType classType;
 @property (copy) NSString *categoryName;
 /// An array of CGUMethods
 @property (strong) NSMutableArray *methods;
@@ -67,7 +57,7 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 @interface CGUMethod : NSObject
 
-/// Specifies if this is an class method rather than an instance method.
+/// Specifies if this is a class method rather than an instance method.
 @property BOOL classMethod;
 
 /// E.g. "NSString *"

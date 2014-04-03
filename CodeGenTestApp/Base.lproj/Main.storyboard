@@ -51,24 +51,14 @@
                     </collectionView>
                     <navigationItem key="navigationItem" id="teh-qR-8dZ">
                         <nil key="title"/>
-                        <barButtonItem key="leftBarButtonItem" title="Perform" id="K89-30-M1C">
-                            <connections>
-                                <action selector="performTapped:" destination="UH6-2k-Soh" id="L5J-Br-hyu"/>
-                            </connections>
-                        </barButtonItem>
                         <slider key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="120" minValue="0.0" maxValue="160" id="sg9-qZ-59e">
-                            <rect key="frame" x="76" y="8" width="191" height="29"/>
+                            <rect key="frame" x="8" y="8" width="304" height="29"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <color key="minimumTrackTintColor" red="0.0" green="0.74117648601531982" blue="0.64313727617263794" alpha="1" colorSpace="deviceRGB"/>
                             <connections>
                                 <action selector="sliderValueChanged:" destination="UH6-2k-Soh" eventType="valueChanged" id="Tfs-NO-5oy"/>
                             </connections>
                         </slider>
-                        <barButtonItem key="rightBarButtonItem" title="Push" id="iCq-LL-Epu">
-                            <connections>
-                                <action selector="pushTapped:" destination="UH6-2k-Soh" id="d84-fn-Y28"/>
-                            </connections>
-                        </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="cellSizeSlider" destination="sg9-qZ-59e" id="gwU-KP-c6P"/>

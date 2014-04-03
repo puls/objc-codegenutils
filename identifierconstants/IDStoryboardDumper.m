@@ -32,14 +32,16 @@
     return output;
 }
 
-- (NSString *)IDS_stringWithSuffix:(NSString *)suffix {
+- (NSString *)IDS_stringWithSuffix:(NSString *)suffix;
+{
     if (![self hasSuffix:suffix]) {
         return [self stringByAppendingString:suffix];
     }
     return self;
 }
 
-- (NSString *)IDS_asPrefixOf:(NSString *)suffix {
+- (NSString *)IDS_asPrefixOf:(NSString *)suffix;
+{
     if (![suffix hasPrefix:self]) {
         return [self stringByAppendingString:suffix];
     }
@@ -47,6 +49,7 @@
 }
 
 @end
+
 
 @implementation IDStoryboardDumper
 
@@ -56,7 +59,7 @@
 }
 
 /// element is any that have a customClass attribute and contain the valid default class name as their name (e.g. viewController, or tableViewCell)
-- (NSString *)classTypeForElement:(NSXMLElement *)element importedCustomClass:(BOOL *)importedCustomClass
+- (NSString *)classTypeForElement:(NSXMLElement *)element importedCustomClass:(out BOOL *)importedCustomClass;
 {
     if (importedCustomClass) {
         *importedCustomClass = NO;
@@ -77,10 +80,10 @@
 }
 
 /// You may call this method multiple times with the same className without it having to search the search path each time. It will only search once and cache the result.
-- (BOOL)importClass:(NSString *)className
+- (BOOL)importClass:(NSString *)className;
 {
     /// Keys: NSString of class name; Values: @(BOOL) stating if it was successfully imported or not
-    if (self.classesImported == nil) {
+    if (!self.classesImported) {
         self.classesImported = [NSMutableDictionary dictionary];
     }
     
@@ -141,7 +144,7 @@
     [identifiers addObjectsFromArray:reuseIdentifiers];
     [identifiers addObjectsFromArray:segueIdentifiers];
     
-    self.interfaceImports = [NSMutableArray array];
+    self.interfaceImports = [NSMutableSet set];
     self.classes = [NSMutableDictionary dictionary];
     self.interfaceContents = [NSMutableArray array];
     self.implementationContents = [NSMutableArray array];

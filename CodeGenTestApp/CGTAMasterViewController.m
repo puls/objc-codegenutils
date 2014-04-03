@@ -19,6 +19,7 @@
 
 @end
 
+
 @implementation CGTAMasterViewController
 
 #pragma mark - NSObject
@@ -32,41 +33,10 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender;
 {
-    // New version: get the properly compiler-checked spelling from the storyboard.
-    // ... here we are guaranteed that tapOnFlag is one of our own view controller's segue and not some random one in the storyboard
     if ([segue.identifier isEqualToString:[self tapOnFlagSegueIdentifier]]) {
         CGTADetailViewController *detailViewController = segue.destinationViewController;
         detailViewController.image = ((CGTAFlagCollectionViewCell *)sender).imageView.image ?: [CGTAImagesCatalog usaImage];
     }
-}
-
-- (IBAction)pushTapped:(id)sender
-{
-    CGTADetailViewController *detailViewController = nil;
-    
-    // Initial version: full of strings that you have to type correctly!
-    // Misspell any of these and your app will not work as expected.
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    detailViewController = [storyboard instantiateViewControllerWithIdentifier:@"Detail View Controller"];
-    
-    // New version: the two lines are combined into one ensuring that "Detail View Controller" does indeed belong to the "Main" storyboard
-    detailViewController = [CGTAMainStoryboard instantiateDetailViewController];
-    
-    // ... also notice how this returns a CGTADetailViewController, rather than an id, so we can be assured that .image is a valid property!
-    detailViewController.image = [CGTAImagesCatalog usaImage];
-    [self.navigationController pushViewController:detailViewController animated:YES];
-}
-
-- (IBAction)performTapped:(id)sender
-{
-    // Initial version: uses a string that you have to type correctly!
-    // Misspell this and your app will not work as expected.
-#if 0
-    [self performSegueWithIdentifier:@"Tap on Flag" sender:nil];
-#endif
-
-    // New version: get the properly compiler-checked spelling from the storyboard.
-    [self performTapOnFlagSegue];
 }
 
 #pragma mark - Private methods
