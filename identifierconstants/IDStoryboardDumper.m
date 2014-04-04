@@ -219,9 +219,6 @@
         }
         
         if (importedCustomClass) {
-            NSArray *segueIdentifiers = [[viewControllerElement nodesForXPath:@".//segue/@identifier" error:&error] valueForKey:NSStringFromSelector(@selector(stringValue))];
-            NSArray *reuseIdentifiers = [viewControllerElement nodesForXPath:@".//*[@reuseIdentifier]" error:&error];
-            
             CGUClass *viewControllerClassCategory = self.classes[className]; // we may see the same class twice, so it is storyed in a dictionary
             if (viewControllerClassCategory == nil) {
                 viewControllerClassCategory = [CGUClass new];
@@ -230,6 +227,7 @@
                 self.classes[className] = viewControllerClassCategory;
             }
             
+            NSArray *segueIdentifiers = [[viewControllerElement nodesForXPath:@".//segue/@identifier" error:&error] valueForKey:NSStringFromSelector(@selector(stringValue))];
             for (NSString *segueIdentifier in segueIdentifiers) {
                 [identifiers removeObject:segueIdentifier]; // we don't want the user accessing this segue via the old method
                 
@@ -247,6 +245,7 @@
                 [viewControllerClassCategory.methods addObject:performSegueMethod];
             }
             
+            NSArray *reuseIdentifiers = [viewControllerElement nodesForXPath:@".//*[@reuseIdentifier]" error:&error];
             for (NSXMLElement *reuseIdentifierElement in reuseIdentifiers) {
                 NSString *reuseIdentifier = [[reuseIdentifierElement attributeForName:@"reuseIdentifier"] stringValue];
                 [identifiers removeObject:reuseIdentifier];
@@ -282,6 +281,25 @@
                 [viewControllerClassCategory.methods addObject:dequeueMethod];
                 
                 // TODO: add support for [collectionView dequeueReusableSupplementaryViewOfKind:(NSString *) withReuseIdentifier:(NSString *) forIndexPath:(NSIndexPath *)]
+            }
+            
+            // Ex: <constraint firstItem="lYE-JU-xj6" firstAttribute="top" secondItem="cR7-VS-ItW" secondAttribute="bottom" constant="97" id="fV7-6P-89B"/>
+            NSArray *constraints = [viewControllerElement nodesForXPath:@".//constraint[@constant]" error:NULL];
+            for (NSXMLElement *constraint in constraints) {
+                NSString *constraintId = [[constraint attributeForName:@"id"] stringValue];
+                NSXMLElement *node = [[viewControllerElement nodesForXPath:[NSString stringWithFormat:@"./connections/outlet[@destination='%@']", constraintId] error:NULL] firstObject];
+                if (node) {
+                    // Ex: <outlet property="buttonTopConstraint" destination="fV7-6P-89B" id="nRh-hX-uwu"/>
+                    NSString *propertyName = [[node attributeForName:@"property"] stringValue];
+                    CGFloat constant = [[[constraint attributeForName:@"constant"] stringValue] floatValue];
+                    
+                    // ouptut - (CGFloat)[(MYCustomViewController *) myCustomConstraintOriginalConstant]
+                    CGUMethod *constraintMethod = [CGUMethod new];
+                    constraintMethod.returnType = @"CGFloat";
+                    constraintMethod.nameAndArguments = [NSString stringWithFormat:@"%@OriginalConstant", [[propertyName IDS_camelcaseString] IDS_stringWithSuffix:@"Constraint"]];
+                    constraintMethod.body = [NSString stringWithFormat:@"    return %f;", constant];
+                    [viewControllerClassCategory.methods addObject:constraintMethod];
+                }
             }
         }
     }

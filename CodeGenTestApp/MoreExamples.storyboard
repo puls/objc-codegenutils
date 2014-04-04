@@ -411,7 +411,38 @@ Xcode will generate a warning, but everything should still compile.</string>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8nl-58-Urd" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1686" y="-978"/>
+            <point key="canvasLocation" x="1398" y="-966"/>
+        </scene>
+        <!--Master View Controller-->
+        <scene sceneID="ALp-T0-uOL">
+            <objects>
+                <viewController storyboardIdentifier="autolayout scene" id="p7L-eM-nnO" customClass="CGTAMasterViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="cR7-VS-ItW"/>
+                        <viewControllerLayoutGuide type="bottom" id="k4I-Ax-dKO"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="JQd-Oo-3Fw">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lYE-JU-xj6">
+                                <rect key="frame" x="137" y="117" width="46" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerX" secondItem="lYE-JU-xj6" secondAttribute="centerX" id="dWm-TR-IiM"/>
+                            <constraint firstItem="lYE-JU-xj6" firstAttribute="top" secondItem="cR7-VS-ItW" secondAttribute="bottom" constant="97" id="fV7-6P-89B"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ptJ-XX-Ngd" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1401" y="-289"/>
         </scene>
         <!--Master View Controller-->
         <scene sceneID="Y9u-9y-ViE">
