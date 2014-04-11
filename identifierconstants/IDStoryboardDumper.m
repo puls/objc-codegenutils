@@ -92,31 +92,10 @@
         return [self.classesImported[className] boolValue];
     }
     
-    NSTask *findFiles = [NSTask new];
-    [findFiles setLaunchPath:@"/usr/bin/grep"];
-    [findFiles setCurrentDirectoryPath:self.searchPath];
-    [findFiles setArguments:[[NSString stringWithFormat:@"-r -l -e @interface[[:space:]]\\{1,\\}%@[[:space:]]*:[[:space:]]*[[:alpha:]]\\{1,\\} .", className] componentsSeparatedByString:@" "]];
-    
-    NSPipe *pipe = [NSPipe pipe];
-    [findFiles setStandardOutput:pipe];
-    NSFileHandle *file = [pipe fileHandleForReading];
-    
-    [findFiles launch];
-    [findFiles waitUntilExit];
-    
-    NSData *data = [file readDataToEndOfFile];
-    
-    NSString *string = [[NSString alloc] initWithData: data encoding:NSUTF8StringEncoding];
-    NSArray *lines = [string componentsSeparatedByString:@"\n"];
     BOOL successfullyImported = NO;
-    for (NSString *line in lines) {
-        NSURL *path = [NSURL URLWithString:line];
-        NSString *importFile = [path lastPathComponent];
-        if ([importFile hasSuffix:@".h"]) {
-            [self.interfaceImports addObject:[NSString stringWithFormat:@"\"%@\"", importFile]];
-            successfullyImported = YES;
-            break;
-        }
+    if ([self.headerFilesFound containsObject:className]) {
+        [self.interfaceImports addObject:[NSString stringWithFormat:@"\"%@.h\"", className]];
+        successfullyImported = YES;
     }
     
     if (!successfullyImported) {

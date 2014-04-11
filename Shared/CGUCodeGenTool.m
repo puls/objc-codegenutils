@@ -46,10 +46,10 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 {
     char opt = -1;
     NSURL *searchURL = nil;
-    NSString *searchPath = nil;
     NSString *classPrefix = @"";
     BOOL target6 = NO;
     NSMutableArray *inputURLs = [NSMutableArray array];
+    NSMutableSet *headerFilesFound = [NSMutableSet set];
     
     while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6")) != -1) {
         switch (opt) {
@@ -74,7 +74,7 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
             }
                 
             case 'f': {
-                searchPath = [[NSString alloc] initWithUTF8String:optarg];
+                NSString *searchPath = [[NSString alloc] initWithUTF8String:optarg];
                 searchPath = [searchPath stringByExpandingTildeInPath];
                 searchURL = [NSURL fileURLWithPath:searchPath];
                 break;
@@ -107,6 +107,10 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
             if ([url.pathExtension isEqualToString:[self inputFileExtension]]) {
                 [inputURLs addObject:url];
             }
+            if ([url.pathExtension isEqualToString:@"h"]) {
+                NSString *fileName = [url lastPathComponent];
+                [headerFilesFound addObject:[fileName substringToIndex:[fileName length] - 2]];
+            }
         }
     }
     
@@ -117,7 +121,7 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
         
         CGUCodeGenTool *target = [self new];
         target.inputURL = url;
-        target.searchPath = searchPath;
+        target.headerFilesFound = headerFilesFound;
         target.targetiOS6 = target6;
         target.classPrefix = classPrefix;
         target.toolName = [[NSString stringWithUTF8String:argv[0]] lastPathComponent];

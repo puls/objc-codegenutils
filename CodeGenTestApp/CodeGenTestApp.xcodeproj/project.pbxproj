@@ -22,6 +22,7 @@
 		A881854218A9B622002803FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A83878E518A0367C00B386D6 /* main.m */; };
 		A881854418A9B663002803FC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A83878EB18A0367C00B386D6 /* Main.storyboard */; };
 		AA24EC5A18EB4F8E00DB0F94 /* MoreExamples.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA24EC5918EB4F8E00DB0F94 /* MoreExamples.storyboard */; };
+		AA509EE318F85CA5000F4136 /* CGTAFlagCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = AA509EE218F85CA5000F4136 /* CGTAFlagCollectionViewCell.m */; };
 		AAA9F41518ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA9F41418ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,8 @@
 		A881852718A9B520002803FC /* codegenutils.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = codegenutils.xcodeproj; path = ../codegenutils.xcodeproj; sourceTree = "<group>"; };
 		A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		AA24EC5918EB4F8E00DB0F94 /* MoreExamples.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MoreExamples.storyboard; sourceTree = "<group>"; };
+		AA509EE118F85CA5000F4136 /* CGTAFlagCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGTAFlagCollectionViewCell.h; sourceTree = "<group>"; };
+		AA509EE218F85CA5000F4136 /* CGTAFlagCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGTAFlagCollectionViewCell.m; sourceTree = "<group>"; };
 		AAA9F41318ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGTAMoreExamplesStoryboardIdentifiers.h; sourceTree = "<group>"; };
 		AAA9F41418ED1A0C00BA7A27 /* CGTAMoreExamplesStoryboardIdentifiers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CGTAMoreExamplesStoryboardIdentifiers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -128,6 +131,8 @@
 				A83878EF18A0367C00B386D6 /* CGTAMasterViewController.m */,
 				A83878F118A0367C00B386D6 /* CGTADetailViewController.h */,
 				A83878F218A0367C00B386D6 /* CGTADetailViewController.m */,
+				AA509EE118F85CA5000F4136 /* CGTAFlagCollectionViewCell.h */,
+				AA509EE218F85CA5000F4136 /* CGTAFlagCollectionViewCell.m */,
 				A838791718A0456500B386D6 /* Derived Sources */,
 				A83878E018A0367C00B386D6 /* Supporting Files */,
 			);
@@ -323,6 +328,7 @@
 				A881853C18A9B622002803FC /* CGTAMasterViewController.m in Sources */,
 				A881853F18A9B622002803FC /* CGTAMainStoryboardIdentifiers.m in Sources */,
 				A881854118A9B622002803FC /* CGTAImagesCatalog+RuntimeHackery.m in Sources */,
+				AA509EE318F85CA5000F4136 /* CGTAFlagCollectionViewCell.m in Sources */,
 				A881853E18A9B622002803FC /* CGTAImagesCatalog.m in Sources */,
 				A881854018A9B622002803FC /* CGTATestAppColorList.m in Sources */,
 				A881854218A9B622002803FC /* main.m in Sources */,

@@ -11,6 +11,7 @@
 #import "CGTADetailViewController.h"
 #import "CGTAImagesCatalog+RuntimeHackery.h"
 #import "CGTAMainStoryboardIdentifiers.h"
+#import "CGTAFlagCollectionViewCell.h"
 
 @interface CGTAMasterViewController ()
 
@@ -102,8 +103,4 @@
     return cell;
 }
 
-@end
-
-
-@implementation CGTAFlagCollectionViewCell
 @end
