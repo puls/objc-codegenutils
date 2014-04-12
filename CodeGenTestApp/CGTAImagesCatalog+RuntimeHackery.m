@@ -17,7 +17,9 @@
 
 + (BOOL)isRuntimeHackeryMethod:(SEL)methodName;
 {
-    return sel_isEqual(methodName, @selector(allImageNames)) || sel_isEqual(methodName, @selector(allImages));
+    return sel_isEqual(methodName, @selector(isRuntimeHackeryMethod:)) ||
+        sel_isEqual(methodName, @selector(allImageNames)) ||
+        sel_isEqual(methodName, @selector(allImages));
 }
 
 + (NSArray *)allImageNames;
