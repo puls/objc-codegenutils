@@ -15,6 +15,11 @@
 
 @implementation CGTAImagesCatalog (RuntimeHackery)
 
++ (BOOL)isRuntimeHackeryMethod:(SEL)methodName;
+{
+    return sel_isEqual(methodName, @selector(allImageNames)) || sel_isEqual(methodName, @selector(allImages));
+}
+
 + (NSArray *)allImageNames;
 {
     NSMutableArray *imageNames = [NSMutableArray array];
@@ -22,7 +27,7 @@
     Method *methods = class_copyMethodList(object_getClass(self), &count);
     for (unsigned int index = 0; index < count; index++) {
         SEL methodName = method_getName(methods[index]);
-        if (sel_isEqual(methodName, _cmd) || sel_isEqual(methodName, @selector(allImages))) {
+        if ([self isRuntimeHackeryMethod:methodName]) {
             continue;
         }
         NSString *imageName = NSStringFromSelector(method_getName(methods[index]));
@@ -41,7 +46,7 @@
     Method *methods = class_copyMethodList(object_getClass(self), &count);
     for (unsigned int index = 0; index < count; index++) {
         SEL methodName = method_getName(methods[index]);
-        if (sel_isEqual(methodName, _cmd) || sel_isEqual(methodName, @selector(allImageNames))) {
+        if ([self isRuntimeHackeryMethod:methodName]) {
             continue;
         }
         id image = method_invoke(self, methods[index]);

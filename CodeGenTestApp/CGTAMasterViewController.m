@@ -55,7 +55,7 @@
 - (NSArray *)flagImages;
 {
     if (!_flagImages) {
-        // Initial version: full of strings that you have to type correctly!
+        // What you might have done without this tool: full of strings that you have to type correctly!
         // Misspell any of these and your app will crash on trying to add `nil` to an array.
         _flagImages = @[[UIImage imageNamed:@"USA"], [UIImage imageNamed:@"Canada"], [UIImage imageNamed:@"UK"], [UIImage imageNamed:@"Australia"]];
         
@@ -92,7 +92,7 @@
 {
     CGTAFlagCollectionViewCell *cell = nil;
 
-    // Initial version: we must type in the identifier, and have no guarantees as to which class it returns
+    // What you might have done without this tool: we must type in the identifier, and have no guarantees as to which class it returns
     cell = (CGTAFlagCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:@"Image Cell" forIndexPath:indexPath];
 
     // New version: class extension which returns the exact type we are expecting

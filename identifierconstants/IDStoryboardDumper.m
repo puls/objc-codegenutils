@@ -10,6 +10,7 @@
 #import "IDStoryboardDumper.h"
 
 @interface IDStoryboardDumper ()
+/// Keys: NSString of class name; Values: @(BOOL) stating if it was successfully imported or not
 @property (strong) NSMutableDictionary *classesImported;
 @end
 
@@ -82,7 +83,6 @@
 /// You may call this method multiple times with the same className without it having to search the search path each time. It will only search once and cache the result.
 - (BOOL)importClass:(NSString *)className;
 {
-    /// Keys: NSString of class name; Values: @(BOOL) stating if it was successfully imported or not
     if (!self.classesImported) {
         self.classesImported = [NSMutableDictionary dictionary];
     }
