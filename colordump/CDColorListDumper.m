@@ -33,8 +33,8 @@
     
     for (NSString *key in colorList.allKeys) {
         NSColor *color = [colorList colorWithKey:key];
-        if (![color.colorSpaceName isEqualToString:NSDeviceRGBColorSpace]) {
-            printf("Color %s isn't device RGB. Skipping.", [key UTF8String]);
+        if (![color.colorSpaceName isEqualToString:NSCalibratedRGBColorSpace]) {
+            printf("Color %s isn't generic calibrated RGB. Skipping.", [key UTF8String]);
             continue;
         }
         
