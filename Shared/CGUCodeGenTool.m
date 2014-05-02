@@ -174,6 +174,8 @@
     }
     [mutableKey replaceOccurrencesOfString:@" " withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
     [mutableKey replaceOccurrencesOfString:@"~" withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
+    [mutableKey replaceOccurrencesOfString:@"@" withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
+    [mutableKey replaceOccurrencesOfString:@"-" withString:@"_" options:0 range:NSMakeRange(0, mutableKey.length)];
     return [mutableKey copy];
 }
 
