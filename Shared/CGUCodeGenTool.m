@@ -308,6 +308,21 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 @implementation CGUMethod
 
+- (NSString *)name;
+{
+    if ([self.nameAndArguments rangeOfString:@":"].location == NSNotFound) {
+        return self.nameAndArguments;
+    } else {
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\w+:" options:0 error:NULL];
+        NSArray *matches = [regex matchesInString:self.nameAndArguments options:0 range:NSMakeRange(0, [self.nameAndArguments length])];
+        NSMutableString *name = [NSMutableString string];
+        for (NSTextCheckingResult *match in matches) {
+            [name appendString:[self.nameAndArguments substringWithRange:match.range]];
+        }
+        return name;
+    }
+}
+
 - (NSString *)interfaceCode;
 {
     return [NSString stringWithFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];

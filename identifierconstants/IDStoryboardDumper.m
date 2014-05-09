@@ -54,6 +54,39 @@
 
 @implementation IDStoryboardDumper
 
+- (void)removeDuplicatedExtensionMethods;
+{
+    // When there are duplicate category methods, the behavior is undefined. Therefore, we want to remove any duplicates.
+    
+    /// Stores all the methods that were added as NSStrings in the form "<class>_<method>" (e.g. "MYViewController_dequeueMYSampleCellForIndexPath:").
+    static NSMutableSet *classCategoryMethodsAdded = nil;
+    if (classCategoryMethodsAdded == nil) {
+        classCategoryMethodsAdded = [NSMutableSet set];
+    }
+
+    for (NSString *className in self.classes) {
+        CGUClass *class = self.classes[className];
+        NSMutableArray *methodsToRemove = [NSMutableArray array];
+        NSMutableSet *methodNamesRemoved = [NSMutableSet set];
+        for (CGUMethod *method in class.methods) {
+            NSString *methodName = method.name;
+            NSString *classMethodKey = [NSString stringWithFormat:@"%@_%@", className, methodName];
+            if ([classCategoryMethodsAdded containsObject:classMethodKey]) {
+                [methodsToRemove addObject:method];
+                [methodNamesRemoved addObject:methodName];
+            } else {
+                [classCategoryMethodsAdded addObject:classMethodKey];
+            }
+        }
+
+        if ([methodNamesRemoved count] > 0) {
+            NSLog(@"Warning: Found (and removed) %lu duplicate identifier(s) associated with class %@. These are the methods that would have been duplicated: %@.", (unsigned long)[methodNamesRemoved count], className, [[methodNamesRemoved allObjects] componentsJoinedByString:@", "]);
+        }
+        
+        [class.methods removeObjectsInArray:methodsToRemove];
+    }
+}
+
 + (NSString *)inputFileExtension;
 {
     return @"storyboard";
@@ -198,7 +231,7 @@
         }
         
         if (importedCustomClass) {
-            CGUClass *viewControllerClassCategory = self.classes[className]; // we may see the same class twice, so it is storyed in a dictionary
+            CGUClass *viewControllerClassCategory = self.classes[className]; // we may see the same class twice, so it is stored in a dictionary
             if (viewControllerClassCategory == nil) {
                 viewControllerClassCategory = [CGUClass new];
                 viewControllerClassCategory.name = className;
@@ -237,29 +270,34 @@
                 [viewControllerClassCategory.methods addObject:reuseIdentifierMethod];
 
                 NSString *elementName = reuseIdentifierElement.name; // E.g. collectionViewCell, tableViewCell, etc.
-                NSString *methodNameSecondArgument = nil;
+                NSString *additionalMethodArguments = nil;
+                NSString *suffix = nil;
                 NSString *code = nil;
                 if ([elementName isEqualToString:@"tableViewCell"]) {
-                    methodNameSecondArgument = @"ofTableView:(UITableView *)tableView";
+                    suffix = @"Cell";
+                    additionalMethodArguments = @"ofTableView:(UITableView *)tableView";
                     code = [NSString stringWithFormat:@"[tableView dequeueReusableCellWithIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
-                } else if ([elementName isEqualToString:@"collectionViewCell"] || [elementName isEqualToString:@"collectionReusableView"]) {
-                    methodNameSecondArgument = @"ofCollectionView:(UICollectionView *)collectionView";
+                } else if ([elementName isEqualToString:@"collectionViewCell"]) {
+                    suffix = @"Cell";
+                    additionalMethodArguments = @"ofCollectionView:(UICollectionView *)collectionView";
                     code = [NSString stringWithFormat:@"[collectionView dequeueReusableCellWithReuseIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
+                } else if ([elementName isEqualToString:@"collectionReusableView"]) {
+                    suffix = @"View";
+                    additionalMethodArguments = @"ofKind:(NSString *)kind ofCollectionView:(UICollectionView *)collectionView";
+                    code = [NSString stringWithFormat:@"[collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
                 } else {
                     NSLog(@"Warning: Unknown reuse identifier %@.", elementName);
                     continue;
                 }
 
-                NSString *reuseIdentifierClassName = [self classTypeForElement:reuseIdentifierElement importedCustomClass:NULL];
+                NSString *reuseIdentifierClassName = [self classTypeForElement:reuseIdentifierElement importedCustomClass:NULL]; // E.g. UITableViewCell, UICollectionViewCell, UICollectionReusableView, or custom class
 
                 // output - (MYCustomCell *)[(MYCustomViewController *) dequeueMyCustomCellForIndexPath:ofTableView:]
                 CGUMethod *dequeueMethod = [CGUMethod new];
                 dequeueMethod.returnType = [NSString stringWithFormat:@"%@ *", reuseIdentifierClassName];
-                dequeueMethod.nameAndArguments = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [[reuseIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Cell"], methodNameSecondArgument];
+                dequeueMethod.nameAndArguments = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [[reuseIdentifier IDS_titlecaseString] IDS_stringWithSuffix:suffix], additionalMethodArguments];
                 dequeueMethod.body = [NSString stringWithFormat:@"    return %@;", code];
                 [viewControllerClassCategory.methods addObject:dequeueMethod];
-                
-                // TODO: add support for [collectionView dequeueReusableSupplementaryViewOfKind:(NSString *) withReuseIdentifier:(NSString *) forIndexPath:(NSIndexPath *)]
             }
             
             // Ex: <constraint firstItem="lYE-JU-xj6" firstAttribute="top" secondItem="cR7-VS-ItW" secondAttribute="bottom" constant="97" id="fV7-6P-89B"/>
@@ -292,6 +330,8 @@
         [self.interfaceContents addObject:[NSString stringWithFormat:@"extern NSString *const %@;\n", key]];
         [self.implementationContents addObject:[NSString stringWithFormat:@"NSString *const %@ = @\"%@\";\n", key, uniqueKeys[key]]];
     }
+    
+    [self removeDuplicatedExtensionMethods];
     
     [self writeOutputFiles];
     completionBlock();

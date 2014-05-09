@@ -68,6 +68,9 @@
 @property (copy) NSString *nameAndArguments;
 @property (copy) NSString *body;
 
+// E.g. "doSomethingWithString:andNumber:"
+@property (readonly) NSString *name;
+
 - (NSString *)interfaceCode;
 - (NSString *)implementationCode;
 
