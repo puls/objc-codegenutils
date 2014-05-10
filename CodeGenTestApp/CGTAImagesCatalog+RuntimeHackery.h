@@ -11,6 +11,7 @@
 
 @interface CGTAImagesCatalog (RuntimeHackery)
 
++ (NSArray *)allImageNames;
 + (NSArray *)allImages;
 
 @end

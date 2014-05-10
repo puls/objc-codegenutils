@@ -11,19 +11,13 @@
 #import "CGTADetailViewController.h"
 #import "CGTAImagesCatalog+RuntimeHackery.h"
 #import "CGTAMainStoryboardIdentifiers.h"
-
-
-@interface CGTAFlagCollectionViewCell : UICollectionViewCell
-
-@property (nonatomic, weak) IBOutlet UIImageView *imageView;
-
-@end
-
+#import "CGTAFlagCollectionViewCell.h"
 
 @interface CGTAMasterViewController ()
 
 @property (nonatomic, weak) IBOutlet UISlider *cellSizeSlider;
 @property (nonatomic, strong) NSArray *flagImages;
+@property (nonatomic, strong) NSArray *flagImageNames;
 
 @end
 
@@ -41,9 +35,11 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender;
 {
-    if ([segue.identifier isEqualToString:CGTAMainStoryboardTapOnFlagIdentifier]) {
+    if ([segue.identifier isEqualToString:[self tapOnFlagSegueIdentifier]]) {
         CGTADetailViewController *detailViewController = segue.destinationViewController;
-        detailViewController.image = ((CGTAFlagCollectionViewCell *)sender).imageView.image;
+        CGTAFlagCollectionViewCell *cellSender = sender;
+        detailViewController.image = cellSender.imageView.image;
+        detailViewController.countryName = cellSender.countryName;
     }
 }
 
@@ -58,17 +54,26 @@
 
 - (NSArray *)flagImages;
 {
-    NSArray *allFlagImages = nil;
+    if (!_flagImages) {
+        // What you might have done without this tool: full of strings that you have to type correctly!
+        // Misspell any of these and your app will crash on trying to add `nil` to an array.
+        _flagImages = @[[UIImage imageNamed:@"USA"], [UIImage imageNamed:@"Canada"], [UIImage imageNamed:@"UK"], [UIImage imageNamed:@"Australia"]];
+        
+        // New version: get the properly compiler-checked spelling from the image catalog.
+        _flagImages = @[[CGTAImagesCatalog usaImage], [CGTAImagesCatalog canadaImage], [CGTAImagesCatalog ukImage], [CGTAImagesCatalog australiaImage]];
+        
+        // But really, why not use a little runtime hackery because we can?
+        _flagImages = [CGTAImagesCatalog allImages];
+    }
+    return _flagImages;
+}
 
-    // Initial version: full of strings that you have to type correctly!
-    // Misspell any of these and your app will crash on trying to add `nil` to an array.
-    allFlagImages = @[[UIImage imageNamed:@"USA"], [UIImage imageNamed:@"Canada"], [UIImage imageNamed:@"UK"], [UIImage imageNamed:@"Australia"]];
-
-    // New version: get the properly compiler-checked spelling from the image catalog.
-    allFlagImages = @[[CGTAImagesCatalog usaImage], [CGTAImagesCatalog canadaImage], [CGTAImagesCatalog ukImage], [CGTAImagesCatalog australiaImage]];
-
-    // But really, why not use a little runtime hackery because we can?
-    return [CGTAImagesCatalog allImages];
+- (NSArray *)flagImageNames;
+{
+    if (!_flagImageNames) {
+        _flagImageNames = [CGTAImagesCatalog allImageNames];
+    }
+    return _flagImageNames;
 }
 
 #pragma mark - UICollectionViewDataSource
@@ -85,13 +90,17 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath;
 {
-    CGTAFlagCollectionViewCell *cell = (CGTAFlagCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:CGTAMainStoryboardImageCellIdentifier forIndexPath:indexPath];
+    CGTAFlagCollectionViewCell *cell = nil;
+
+    // What you might have done without this tool: we must type in the identifier, and have no guarantees as to which class it returns
+    cell = (CGTAFlagCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:@"Image Cell" forIndexPath:indexPath];
+
+    // New version: class extension which returns the exact type we are expecting
+    cell = [self dequeueImageCellForIndexPath:indexPath ofCollectionView:collectionView];
+    
     cell.imageView.image = self.flagImages[indexPath.item];
+    cell.countryName = self.flagImageNames[indexPath.item];
     return cell;
 }
 
-@end
-
-
-@implementation CGTAFlagCollectionViewCell
 @end

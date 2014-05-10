@@ -11,5 +11,6 @@
 @interface CGTADetailViewController : UIViewController
 
 @property (nonatomic, strong) UIImage *image;
+@property (nonatomic, copy) NSString *countryName;
 
 @end

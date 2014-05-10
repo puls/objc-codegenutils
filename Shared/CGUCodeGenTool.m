@@ -11,10 +11,25 @@
 
 #import <libgen.h>
 
+typedef NS_ENUM(NSInteger, CGUClassType) {
+    CGUClassType_Definition,
+    CGUClassType_Extension,
+    CGUClassType_Category
+};
 
 @interface CGUCodeGenTool ()
 
 @property (copy) NSString *toolName;
+
+@end
+
+@interface CGUClass ()
+
+/// The class type is determined by the following:
+/// - If there is a superClassName, this is a class definition
+/// - If there is a clategoryName, this is a category
+/// - Otherwise, this is a class extension
+@property (readonly) CGUClassType classType;
 
 @end
 
@@ -34,6 +49,7 @@
     NSString *classPrefix = @"";
     BOOL target6 = NO;
     NSMutableArray *inputURLs = [NSMutableArray array];
+    NSMutableSet *headerFilesFound = [NSMutableSet set];
     
     while ((opt = getopt(argc, (char *const*)argv, "o:f:p:h6")) != -1) {
         switch (opt) {
@@ -91,6 +107,10 @@
             if ([url.pathExtension isEqualToString:[self inputFileExtension]]) {
                 [inputURLs addObject:url];
             }
+            if ([url.pathExtension isEqualToString:@"h"]) {
+                NSString *fileName = [url lastPathComponent];
+                [headerFilesFound addObject:[fileName substringToIndex:[fileName length] - 2]];
+            }
         }
     }
     
@@ -101,6 +121,7 @@
         
         CGUCodeGenTool *target = [self new];
         target.inputURL = url;
+        target.headerFilesFound = headerFilesFound;
         target.targetiOS6 = target6;
         target.classPrefix = classPrefix;
         target.toolName = [[NSString stringWithUTF8String:argv[0]] lastPathComponent];
@@ -137,6 +158,16 @@
     }];
     
     NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n\n", self.inputURL.lastPathComponent, self.toolName];
+    
+    for (NSString *import in self.interfaceImports) {
+        [interface appendFormat:@"#import %@\n", import];
+    }
+    [interface appendString:@"\n"];
+    
+    for (NSString *className in self.classes) {
+        CGUClass *class = self.classes[className];
+        [interface appendFormat:@"%@\n", [class interfaceCode]];
+    }
 
     if (self.skipClassDeclaration) {
         [interface appendString:[self.interfaceContents componentsJoinedByString:@""]];
@@ -149,6 +180,12 @@
     }
     
     NSMutableString *implementation = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import \"%@\"\n\n\n", self.inputURL.lastPathComponent, self.toolName, classNameH];
+    
+    for (NSString *className in self.classes) {
+        CGUClass *class = self.classes[className];
+        [implementation appendFormat:@"%@\n", [class implementationCode]];
+    }
+
     if (self.skipClassDeclaration) {
         [implementation appendString:[self.implementationContents componentsJoinedByString:@""]];
     } else {
@@ -177,6 +214,126 @@
     [mutableKey replaceOccurrencesOfString:@"@" withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
     [mutableKey replaceOccurrencesOfString:@"-" withString:@"_" options:0 range:NSMakeRange(0, mutableKey.length)];
     return [mutableKey copy];
+}
+
+@end
+
+
+
+@implementation CGUClass
+
+- (instancetype)init;
+{
+    self = [super init];
+    if (self) {
+        self.methods = [NSMutableArray array];
+    }
+    return self;
+}
+
+- (void)sortMethods;
+{
+    [self.methods sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        CGUMethod *method1 = obj1;
+        CGUMethod *method2 = obj2;
+        
+        // 1. sort class methods first, then instance methods
+        if (method1.classMethod && !method2.classMethod) {
+            return NSOrderedAscending;
+        } else if (!method1.classMethod && method2.classMethod) {
+            return NSOrderedDescending;
+        }
+        
+        // 2. sort by the method name
+        return [method1.nameAndArguments caseInsensitiveCompare:method2.nameAndArguments];
+    }];
+}
+
+- (NSString *)interfaceCode;
+{
+    if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
+        // no need to print a category/extension if it has no methods
+        return @"";
+    }
+    
+    [self sortMethods];
+    
+    NSMutableString *result = [NSMutableString string];
+    if (self.classType == CGUClassType_Definition) {
+        [result appendFormat:@"@interface %@ : %@\n", self.name, self.superClassName];
+    } else {
+        [result appendFormat:@"@interface %@ (%@)\n", self.name, self.categoryName];
+    }
+    for (CGUMethod *method in self.methods) {
+        [result appendString:[method interfaceCode]];
+        [result appendString:@"\n"];
+    }
+    [result appendFormat:@"@end\n"];
+    return result;
+}
+
+- (NSString *)implementationCode;
+{
+    if (self.methods.count == 0 && self.classType != CGUClassType_Definition) {
+        // no need to print a category/extension if it has no methods
+        return @"";
+    }
+
+    [self sortMethods];
+    
+    NSMutableString *result = [NSMutableString string];
+    if (self.classType == CGUClassType_Definition) {
+        [result appendFormat:@"@implementation %@\n", self.name];
+    } else {
+        [result appendFormat:@"@implementation %@ (%@)\n", self.name, self.categoryName];
+    }
+    for (CGUMethod *method in self.methods) {
+        [result appendString:[method implementationCode]];
+        [result appendString:@"\n"];
+    }
+    [result appendFormat:@"@end\n"];
+    return result;
+}
+
+- (CGUClassType)classType;
+{
+    if (self.superClassName) {
+        return CGUClassType_Definition;
+    } else {
+        return self.categoryName.length == 0 ? CGUClassType_Extension : CGUClassType_Category;
+    }
+}
+
+@end
+
+
+
+@implementation CGUMethod
+
+- (NSString *)name;
+{
+    if ([self.nameAndArguments rangeOfString:@":"].location == NSNotFound) {
+        return self.nameAndArguments;
+    } else {
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"\\w+:" options:0 error:NULL];
+        NSArray *matches = [regex matchesInString:self.nameAndArguments options:0 range:NSMakeRange(0, [self.nameAndArguments length])];
+        NSMutableString *name = [NSMutableString string];
+        for (NSTextCheckingResult *match in matches) {
+            [name appendString:[self.nameAndArguments substringWithRange:match.range]];
+        }
+        return name;
+    }
+}
+
+- (NSString *)interfaceCode;
+{
+    return [NSString stringWithFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];
+}
+
+- (NSString *)implementationCode;
+{
+    // TODO: indent each line in the body?
+    return [NSString stringWithFormat:@"%@ (%@)%@ {\n%@\n}", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments, self.body];
 }
 
 @end
