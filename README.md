@@ -54,7 +54,76 @@ We already fixed the part about code reuse with `objc-colordump`, and now we can
 
 Call `objc-identifierconstants` with the `.storyboard` paths as arguments from the directory into which it should output the code.
 
-For a storyboard named "Foo" with view controller identifier "Bar" and segue identifier "Baz" somewhere in it, you'll get `FooStoryboardIdenfitiers.h` and `FooStoryboardIdentifiers.m` with `extern NSString *const FooStoryboardBarIdentifier` and `extern NSString *const FooStoryboardBazIdentifier` in it. Put them in your DerivedSources folder and you're good to go.
+For a storyboard named "Foo", you'll get `FooStoryboardIdenfitiers.h` and `FooStoryboardIdentifiers.m`. Put them in your DerivedSources folder and you're good to go.
+
+The tool will first attempt to add category methods on your existing view controller subclasses. If it does not find a given class, it resorts to outputting constants. For example, a segue identifier "Baz" will generate `extern NSString *const FooStoryboardBazIdentifier`.
+
+### Examples
+
+#### Storyboard scenes
+
+```objective-c
+// old way:
+UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+id viewController = [storyboard instantiateViewControllerWithIdentifier:@"Detail View Controller"];
+
+// new way:
+MYDetailViewController *detailViewController = [MYMainStoryboard instantiateDetailViewController];
+```
+
+#### Segues
+
+```objective-c
+// old way:
+[self performSegueWithIdentifier:@"Show Details" sender:nil];
+
+// new way:
+[self performShowDetailsSegue];
+```
+
+#### Table view cells
+
+```objective-c
+// old way:
+id cell = [tableView dequeueReusableCellWithIdentifier:@"Image cell" forIndexPath:indexPath];
+
+// new way:
+MYImageCell *imageCell = [self dequeueImageCellForIndexPath:indexPath ofTableView:tableView];
+```
+
+#### Auto Layout constraint constants
+
+```objective-c
+// old way:
+self.labelHeightConstraint.constant = showLabel ? 40.0f : 0.0f;
+
+// new way:
+self.labelHeightConstraint.constant = showLabel ? [self labelHeightConstraintOriginalConstant] : 0.0f;
+```
+
+#### Other features
+
+```objective-c
+// getting a storyboard
+UIStoryboard *storyboard = [MYCustomStoryboard storyboard];
+
+// instantiate initial storyboard view controller
+MYCustomViewController *viewController = [MYCustomStoryboard instantiateInitialViewController];
+
+// getting segue identifier
+NSString *segueID = [self <#segueID#>SegueIdentifier];
+
+// getting cell/view identifier (for UITableView or UICollectionView)
+NSString *cellID = [self <#cellID#>Identifier];
+
+// dequeue collection view reusable cell
+MYCustomCell *cell = [self dequeue<#cellID#>CellForIndexPath:indexPath ofCollectionView:collectionView];
+
+// dequeue collectiov view reusable view 
+MYCustomView *view = [self dequeue<#viewID#>ViewForIndexPath:indexPath ofKind:kind ofCollectionView:collectionView];
+```
+
+**Note:** in the above examples, `self` refers to a subclass of UIViewController.
 
 ## Command-line options (common to all three tools)
 
