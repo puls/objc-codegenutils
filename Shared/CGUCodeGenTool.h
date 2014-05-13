@@ -57,6 +57,9 @@
 
 @interface CGUMethod : NSObject
 
+/// A string that will be added right before the declaration of the method in the .h file with '///' prepended to each line.
+@property NSString *documentation;
+
 /// Specifies if this is a class method rather than an instance method.
 @property BOOL classMethod;
 

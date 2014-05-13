@@ -64,7 +64,7 @@ The tool will first attempt to add category methods on your existing view contro
 
 ```objective-c
 // old way:
-UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
+UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
 id viewController = [storyboard instantiateViewControllerWithIdentifier:@"Detail View Controller"];
 
 // new way:
@@ -75,7 +75,7 @@ MYDetailViewController *detailViewController = [MYMainStoryboard instantiateDeta
 
 ```objective-c
 // old way:
-[self performSegueWithIdentifier:@"Show Details" sender:nil];
+[self performSegueWithIdentifier:@"Show Details Segue" sender:nil];
 
 // new way:
 [self performShowDetailsSegue];
@@ -85,7 +85,7 @@ MYDetailViewController *detailViewController = [MYMainStoryboard instantiateDeta
 
 ```objective-c
 // old way:
-id cell = [tableView dequeueReusableCellWithIdentifier:@"Image cell" forIndexPath:indexPath];
+id cell = [tableView dequeueReusableCellWithIdentifier:@"Image Cell" forIndexPath:indexPath];
 
 // new way:
 MYImageCell *imageCell = [self dequeueImageCellForIndexPath:indexPath ofTableView:tableView];
@@ -107,23 +107,38 @@ self.labelHeightConstraint.constant = showLabel ? [self labelHeightConstraintOri
 // getting a storyboard
 UIStoryboard *storyboard = [MYCustomStoryboard storyboard];
 
+// getting a scene identifier
+NSString *sceneIdentifier = [MYCustomStoryboard <#sceneID#>Identifier];
+
 // instantiate initial storyboard view controller
 MYCustomViewController *viewController = [MYCustomStoryboard instantiateInitialViewController];
 
-// getting segue identifier
-NSString *segueID = [self <#segueID#>SegueIdentifier];
+// getting a segue identifier
+NSString *segueID = [self <#segueID#>Identifier];
 
-// getting cell/view identifier (for UITableView or UICollectionView)
+// getting a cell/view identifier (for UITableView or UICollectionView)
 NSString *cellID = [self <#cellID#>Identifier];
 
 // dequeue collection view reusable cell
-MYCustomCell *cell = [self dequeue<#cellID#>CellForIndexPath:indexPath ofCollectionView:collectionView];
+MYCustomCell *cell = [self dequeue<#cellID#>ForIndexPath:indexPath ofCollectionView:collectionView];
 
 // dequeue collectiov view reusable view 
-MYCustomView *view = [self dequeue<#viewID#>ViewForIndexPath:indexPath ofKind:kind ofCollectionView:collectionView];
+MYCustomView *view = [self dequeue<#viewID#>ForIndexPath:indexPath ofKind:kind ofCollectionView:collectionView];
 ```
 
 **Note:** in the above examples, `self` refers to a subclass of UIViewController.
+
+### Generated names
+
+Here is a list of the generated names along with naming recommendations.
+
+- **Storyboard:** "Foo_iPhone.storyboard" -> *MYFoo_iPhone*Storyboard
+- **Scene:** "Foo Controller" -> instantiate*FooController*, *fooController*Identifier
+- ... or "Foo Scene" -> instantiate*FooScene*, *fooScene*Identifier
+- **Segue:** "Foo Segue" -> perform*FooSegue*, *fooSegue*Identifier
+- **Reusable Cell/View:** "Foo Cell" -> dequeue*FooCell*ForIndexPath, *fooCell*Identifier
+- **Constraint:** "fooConstraint" -> *fooConstraint*OriginalConstant
+
 
 ## Command-line options (common to all three tools)
 

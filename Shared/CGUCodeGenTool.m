@@ -325,7 +325,15 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 - (NSString *)interfaceCode;
 {
-    return [NSString stringWithFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];
+    NSMutableString *interfaceCode = [NSMutableString string];
+    if (self.documentation) {
+        NSArray *lines = [self.documentation componentsSeparatedByString:@"\n"];
+        for (NSString *line in lines) {
+            [interfaceCode appendFormat:@"/// %@\n", line];
+        }
+    }
+    [interfaceCode appendFormat:@"%@ (%@)%@;", (self.classMethod ? @"+" : @"-"), self.returnType ?: @"void", self.nameAndArguments];
+    return [interfaceCode copy];
 }
 
 - (NSString *)implementationCode;

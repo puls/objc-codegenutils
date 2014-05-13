@@ -33,22 +33,6 @@
     return output;
 }
 
-- (NSString *)IDS_stringWithSuffix:(NSString *)suffix;
-{
-    if (![self hasSuffix:suffix]) {
-        return [self stringByAppendingString:suffix];
-    }
-    return self;
-}
-
-- (NSString *)IDS_asPrefixOf:(NSString *)suffix;
-{
-    if (![suffix hasPrefix:self]) {
-        return [self stringByAppendingString:suffix];
-    }
-    return self;
-}
-
 @end
 
 
@@ -177,8 +161,9 @@
         return [storyboardIdentifier1 caseInsensitiveCompare:storyboardIdentifier2];
     }];
     
+    // generate the MYMainStoryboard class
     CGUClass *storyboardClass = [CGUClass new];
-    storyboardClass.name = [self.classPrefix IDS_asPrefixOf:[NSString stringWithFormat:@"%@Storyboard", storyboardName]];
+    storyboardClass.name = [NSString stringWithFormat:@"%@%@Storyboard", self.classPrefix, storyboardName];
     storyboardClass.superClassName = @"NSObject";
     self.classes[storyboardClass.name] = storyboardClass;
     
@@ -221,11 +206,20 @@
         if (storyboardIdentifier) {
             [identifiers removeObject:storyboardIdentifier]; // prevent user from using the old string, they can now access it via [MYMainStoryboard instantiate...]
 
+            // output + [MYMainStoryboard myCustomViewControllerIdentifier]
+            CGUMethod *customViewControllerIdentifierMethod = [CGUMethod new];
+            customViewControllerIdentifierMethod.classMethod = YES;
+            customViewControllerIdentifierMethod.returnType = @"NSString *";
+            customViewControllerIdentifierMethod.nameAndArguments = [NSString stringWithFormat:@"%@Identifier", [storyboardIdentifier IDS_camelcaseString]];
+            customViewControllerIdentifierMethod.body = [NSString stringWithFormat:@"    return @\"%@\";", storyboardIdentifier];
+            [storyboardClass.methods addObject:customViewControllerIdentifierMethod];
+
             // output + [MYMainStoryboard instantiateMyCustomViewController]
             CGUMethod *instantiateCustomViewControllerMethod = [CGUMethod new];
+            instantiateCustomViewControllerMethod.documentation = [NSString stringWithFormat:@"@return The scene with id '%@' from the '%@' storyboard.", storyboardIdentifier, storyboardName];
             instantiateCustomViewControllerMethod.classMethod = YES;
             instantiateCustomViewControllerMethod.returnType = [NSString stringWithFormat:@"%@ *", className];
-            instantiateCustomViewControllerMethod.nameAndArguments = [@"instantiate" stringByAppendingString:[[storyboardIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Controller"]];
+            instantiateCustomViewControllerMethod.nameAndArguments = [NSString stringWithFormat:@"instantiate%@", [storyboardIdentifier IDS_titlecaseString]];
             instantiateCustomViewControllerMethod.body = [NSString stringWithFormat:@"    return [[self storyboard] instantiateViewControllerWithIdentifier:@\"%@\"];", storyboardIdentifier];
             [storyboardClass.methods addObject:instantiateCustomViewControllerMethod];
         }
@@ -246,13 +240,13 @@
                 // output - [(MYCustomViewController *) myCustomSegueIdentifier]
                 CGUMethod *segueIdentifierMethod = [CGUMethod new];
                 segueIdentifierMethod.returnType = @"NSString *";
-                segueIdentifierMethod.nameAndArguments = [[[segueIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Segue"] stringByAppendingString:@"Identifier"];
+                segueIdentifierMethod.nameAndArguments = [NSString stringWithFormat:@"%@Identifier", [segueIdentifier IDS_camelcaseString]];
                 segueIdentifierMethod.body = [NSString stringWithFormat:@"    return @\"%@\";", segueIdentifier];
                 [viewControllerClassCategory.methods addObject:segueIdentifierMethod];
                 
                 // output - [(MYCustomViewController *) performMyCustomSegue]
                 CGUMethod *performSegueMethod = [CGUMethod new];
-                performSegueMethod.nameAndArguments = [@"perform" stringByAppendingString:[[segueIdentifier IDS_titlecaseString] IDS_stringWithSuffix:@"Segue"]];
+                performSegueMethod.nameAndArguments = [NSString stringWithFormat:@"perform%@", [segueIdentifier IDS_titlecaseString]];
                 performSegueMethod.body = [NSString stringWithFormat:@"    [self performSegueWithIdentifier:[self %@] sender:nil];", segueIdentifierMethod.nameAndArguments];
                 [viewControllerClassCategory.methods addObject:performSegueMethod];
             }
@@ -265,24 +259,20 @@
                 // output - (NSString *)[(MYCustomViewController *) myCustomCellIdentifier];
                 CGUMethod *reuseIdentifierMethod = [CGUMethod new];
                 reuseIdentifierMethod.returnType = @"NSString *";
-                reuseIdentifierMethod.nameAndArguments = [[reuseIdentifier IDS_camelcaseString] IDS_stringWithSuffix:@"Identifier"];
+                reuseIdentifierMethod.nameAndArguments = [NSString stringWithFormat:@"%@Identifier", [reuseIdentifier IDS_camelcaseString]];
                 reuseIdentifierMethod.body = [NSString stringWithFormat:@"    return @\"%@\";", reuseIdentifier];
                 [viewControllerClassCategory.methods addObject:reuseIdentifierMethod];
 
                 NSString *elementName = reuseIdentifierElement.name; // E.g. collectionViewCell, tableViewCell, etc.
                 NSString *additionalMethodArguments = nil;
-                NSString *suffix = nil;
                 NSString *code = nil;
                 if ([elementName isEqualToString:@"tableViewCell"]) {
-                    suffix = @"Cell";
                     additionalMethodArguments = @"ofTableView:(UITableView *)tableView";
                     code = [NSString stringWithFormat:@"[tableView dequeueReusableCellWithIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
                 } else if ([elementName isEqualToString:@"collectionViewCell"]) {
-                    suffix = @"Cell";
                     additionalMethodArguments = @"ofCollectionView:(UICollectionView *)collectionView";
                     code = [NSString stringWithFormat:@"[collectionView dequeueReusableCellWithReuseIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
                 } else if ([elementName isEqualToString:@"collectionReusableView"]) {
-                    suffix = @"View";
                     additionalMethodArguments = @"ofKind:(NSString *)kind ofCollectionView:(UICollectionView *)collectionView";
                     code = [NSString stringWithFormat:@"[collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:@\"%@\" forIndexPath:indexPath]", reuseIdentifier];
                 } else {
@@ -295,7 +285,7 @@
                 // output - (MYCustomCell *)[(MYCustomViewController *) dequeueMyCustomCellForIndexPath:ofTableView:]
                 CGUMethod *dequeueMethod = [CGUMethod new];
                 dequeueMethod.returnType = [NSString stringWithFormat:@"%@ *", reuseIdentifierClassName];
-                dequeueMethod.nameAndArguments = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [[reuseIdentifier IDS_titlecaseString] IDS_stringWithSuffix:suffix], additionalMethodArguments];
+                dequeueMethod.nameAndArguments = [NSString stringWithFormat:@"dequeue%@ForIndexPath:(NSIndexPath *)indexPath %@", [reuseIdentifier IDS_titlecaseString], additionalMethodArguments];
                 dequeueMethod.body = [NSString stringWithFormat:@"    return %@;", code];
                 [viewControllerClassCategory.methods addObject:dequeueMethod];
             }
@@ -313,7 +303,7 @@
                     // ouptut - (CGFloat)[(MYCustomViewController *) myCustomConstraintOriginalConstant]
                     CGUMethod *constraintMethod = [CGUMethod new];
                     constraintMethod.returnType = @"CGFloat";
-                    constraintMethod.nameAndArguments = [NSString stringWithFormat:@"%@OriginalConstant", [[propertyName IDS_camelcaseString] IDS_stringWithSuffix:@"Constraint"]];
+                    constraintMethod.nameAndArguments = [NSString stringWithFormat:@"%@OriginalConstant", [propertyName IDS_camelcaseString]];
                     constraintMethod.body = [NSString stringWithFormat:@"    return %f;", constant];
                     [viewControllerClassCategory.methods addObject:constraintMethod];
                 }

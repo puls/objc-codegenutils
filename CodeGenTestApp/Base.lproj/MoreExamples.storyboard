@@ -1223,6 +1223,6 @@ Xcode will generate a warning, but everything should still compile.</string>
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="lfF-VS-I2z"/>
+        <segue reference="CO3-MO-We7"/>
     </inferredMetricsTieBreakers>
 </document>
