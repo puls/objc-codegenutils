@@ -12,6 +12,8 @@
 #import "CGTAImagesCatalog+RuntimeHackery.h"
 #import "CGTAMainStoryboardIdentifiers.h"
 #import "CGTAFlagCollectionViewCell.h"
+#import "CGTATestAppColorList.h"
+#import "CGTAMoreExamplesStoryboardIdentifiers.h"
 
 @interface CGTAMasterViewController ()
 
@@ -23,6 +25,18 @@
 
 
 @implementation CGTAMasterViewController
+
+//#define ColorTester
+#ifdef ColorTester
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    UIViewController *controller = [CGTAMoreExamplesStoryboard instantiateColorTestScene];
+    UIView *runTimeView = [controller.view viewWithTag:1];
+    runTimeView.backgroundColor = [CGTATestAppColorList blueGenericRGBColor];
+    [self.navigationController pushViewController:controller animated:NO];
+}
+#endif
 
 #pragma mark - NSObject
 

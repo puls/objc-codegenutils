@@ -34,7 +34,8 @@
 
 - (void)writeOutputFiles;
 
-- (NSString *)methodNameForKey:(NSString *)key;
+/// @param camelCase If this is true, it will use @e camelCase, otherwise it will use @e TitleCase.
++ (NSString *)identifierNameForKey:(NSString *)key camelCase:(BOOL)camelCase;
 
 @end
 

@@ -65,7 +65,7 @@
 - (void)parseImageSetAtURL:(NSURL *)url;
 {
     NSString *imageSetName = [[url lastPathComponent] stringByDeletingPathExtension];
-    NSString *methodName = [self methodNameForKey:imageSetName];
+    NSString *methodName = [CGUCodeGenTool identifierNameForKey:imageSetName camelCase:YES];
     NSURL *contentsURL = [url URLByAppendingPathComponent:@"Contents.json"];
     NSData *contentsData = [NSData dataWithContentsOfURL:contentsURL options:NSDataReadingMappedIfSafe error:NULL];
     if (!contentsData) {

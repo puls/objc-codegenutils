@@ -41,7 +41,7 @@
         CGFloat r, g, b, a;
         [color getRed:&r green:&g blue:&b alpha:&a];
         
-        NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [self methodNameForKey:key]];
+        NSString *declaration = [NSString stringWithFormat:@"+ (UIColor *)%@Color;\n", [CGUCodeGenTool identifierNameForKey:key camelCase:YES]];
         [self.interfaceContents addObject:declaration];
         
         NSMutableString *method = [declaration mutableCopy];

@@ -18,19 +18,12 @@
 
 - (NSString *)IDS_titlecaseString;
 {
-    NSArray *words = [self componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    NSMutableString *output = [NSMutableString string];
-    for (NSString *word in words) {
-        [output appendFormat:@"%@%@", [[word substringToIndex:1] uppercaseString], [word substringFromIndex:1]];
-    }
-    return output;
+    return [CGUCodeGenTool identifierNameForKey:self camelCase:NO];
 }
 
 - (NSString *)IDS_camelcaseString;
 {
-    NSString *output = [self IDS_titlecaseString];
-    output = [NSString stringWithFormat:@"%@%@", [[output substringToIndex:1] lowercaseString], [output substringFromIndex:1]];
-    return output;
+    return [CGUCodeGenTool identifierNameForKey:self camelCase:YES];
 }
 
 @end

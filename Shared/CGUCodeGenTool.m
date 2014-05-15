@@ -199,19 +199,78 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
     NSLog(@"Wrote %@ to %@", self.className, currentDirectory);
 }
 
-- (NSString *)methodNameForKey:(NSString *)key;
++ (NSString *)identifierNameForKey:(NSString *)key camelCase:(BOOL)camelCase;
 {
-    NSMutableString *mutableKey = [key mutableCopy];
-    // If the string is already all caps, it's an abbrevation. Lowercase the whole thing.
-    // Otherwise, camelcase it by lowercasing the first character.
-    if ([mutableKey isEqualToString:[mutableKey uppercaseString]]) {
-        mutableKey = [[mutableKey lowercaseString] mutableCopy];
-    } else {
-        [mutableKey replaceCharactersInRange:NSMakeRange(0, 1) withString:[[key substringToIndex:1] lowercaseString]];
+    /*
+     Standard examples (camelCase):
+     My Scene Identifier -> mySceneIdentifier
+     my scene identifier -> mySceneIdentifier
+     
+     Abbreviation examples (camelCase only feature) (i.e. uppercase first word -> lowercase):
+     USA -> usa
+     usa -> usa
+     USA2 -> usa2                       // considered uppercased first word
+     USoA -> uSoA
+     usa image -> usaImage
+     USA image -> usaImage
+     image USA -> imageUSA              // abbreviations are only searched for in the first word
+     
+     Number handling examples (camelCase):
+     2url -> _2url                      // identifiers cannot begin with a number
+     A2test -> A2test                   // A2 is in uppercase, so it assumes it is a namespace
+     2Atest -> _2Atest
+     22test -> _22test
+
+     Special character handling (camelCase):
+     usa image -> usaImage              // space acts as word separator
+     usa-image -> usaImage              // any non alphanumeric character acts as a word separator
+     usa_image -> usa_image             // underscores are preserved
+     
+     More examples (camelCase):
+     NSString -> nSString
+     NS String -> nsString
+     my url -> myUrl
+     my uRL -> myURL
+     my URL -> myURL
+     my u r l -> myURL
+     myUrl list -> myUrlList
+     myUrl MyUrl -> myUrlMyUrl
+     myUrl NSUrl -> myUrlNSUrl
+     myURL NSUrl -> myURLNSUrl
+     */
+    
+    NSRegularExpression *wordsRegex = [NSRegularExpression regularExpressionWithPattern:@"\\w+" options:0 error:NULL];
+    NSArray *wordMatches = [wordsRegex matchesInString:key options:0 range:NSMakeRange(0, key.length)];
+    NSMutableArray *words = [NSMutableArray array];
+    for (NSTextCheckingResult *wordMatch in wordMatches) {
+        [words addObject:[key substringWithRange:wordMatch.range]];
     }
-    [mutableKey replaceOccurrencesOfString:@" " withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
-    [mutableKey replaceOccurrencesOfString:@"~" withString:@"" options:0 range:NSMakeRange(0, mutableKey.length)];
-    return [mutableKey copy];
+    NSAssert([words count] > 0, @"Must have at least one character in an identifier.");
+    
+    // Process the first word.
+    if (camelCase) {
+        // If the first word is all caps, it's an abbrevation. Lowercase it.
+        // Otherwise, camelcase it by lowercasing the first character.
+        if ([words[0] isEqualToString:[words[0] uppercaseString]]) {
+            words[0] = [words[0] lowercaseString];
+        } else {
+            words[0] = [words[0] stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[words[0] substringToIndex:1] lowercaseString]];
+        }
+    } else {
+        words[0] = [words[0] stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[words[0] substringToIndex:1] uppercaseString]];
+    }
+    
+    // If the first word starts with a number, prefix with underscore.
+    if ([words[0] rangeOfCharacterFromSet:[NSCharacterSet decimalDigitCharacterSet]].location == 0) {
+        words[0] = [NSString stringWithFormat:@"_%@", words[0]];
+    }
+    
+    // Process the remaining words (uppercase first letter of each word).
+    for (NSInteger i = 1; i < [words count]; i++) {
+        words[i] = [words[i] stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[words[i] substringToIndex:1] uppercaseString]];
+    }
+
+    return [words componentsJoinedByString:@""];
 }
 
 @end
