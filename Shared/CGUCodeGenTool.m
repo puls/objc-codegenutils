@@ -13,8 +13,8 @@
 
 typedef NS_ENUM(NSInteger, CGUClassType) {
     CGUClassType_Definition,
-    CGUClassType_Extension,
     CGUClassType_Category
+    // TODO: add extension in the future?
 };
 
 @interface CGUCodeGenTool ()
@@ -26,9 +26,8 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 @interface CGUClass ()
 
 /// The class type is determined by the following:
-/// - If there is a superClassName, this is a class definition
-/// - If there is a clategoryName, this is a category
-/// - Otherwise, this is a class extension
+/// - If there is a categoryName, this is a category.
+/// - Otherwise this is a class definition.
 @property (readonly) CGUClassType classType;
 
 @end
@@ -317,7 +316,7 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
     
     NSMutableString *result = [NSMutableString string];
     if (self.classType == CGUClassType_Definition) {
-        [result appendFormat:@"@interface %@ : %@\n", self.name, self.superClassName];
+        [result appendFormat:@"@interface %@ : %@\n", self.name, self.superClassName ?: @"NSObject"];
     } else {
         [result appendFormat:@"@interface %@ (%@)\n", self.name, self.categoryName];
     }
@@ -354,10 +353,10 @@ typedef NS_ENUM(NSInteger, CGUClassType) {
 
 - (CGUClassType)classType;
 {
-    if (self.superClassName) {
-        return CGUClassType_Definition;
+    if (self.categoryName.length > 0) {
+        return CGUClassType_Category;
     } else {
-        return self.categoryName.length == 0 ? CGUClassType_Extension : CGUClassType_Category;
+        return CGUClassType_Definition;
     }
 }
 
