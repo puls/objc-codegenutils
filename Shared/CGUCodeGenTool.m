@@ -136,7 +136,7 @@
         return [obj1 compare:obj2];
     }];
     
-    NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n#import <UIKit/UIKit.h>\n\n\n", self.inputURL.lastPathComponent, self.toolName];
+    NSMutableString *interface = [NSMutableString stringWithFormat:@"//\n// This file is generated from %@ by %@.\n// Please do not edit.\n//\n\n@import UIKit;\n\n\n", self.inputURL.lastPathComponent, self.toolName];
 
     if (self.skipClassDeclaration) {
         [interface appendString:[self.interfaceContents componentsJoinedByString:@""]];
