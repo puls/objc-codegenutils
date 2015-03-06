@@ -28,7 +28,7 @@
 {
     self.skipClassDeclaration = YES;
     NSString *storyboardFilename = [[self.inputURL lastPathComponent] stringByDeletingPathExtension];
-    NSString *storyboardName = [storyboardFilename stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSString *storyboardName = [[storyboardFilename stringByReplacingOccurrencesOfString:@" " withString:@""] stringByReplacingOccurrencesOfString:@"~" withString:@"_"];
     
     self.className = [NSString stringWithFormat:@"%@%@StoryboardIdentifiers", self.classPrefix, storyboardName];
     NSError *error = nil;
