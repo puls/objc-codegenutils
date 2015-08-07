@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9089FED4190CB122003FBAF8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */; };
+		9089FED7190CB122003FBAF8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9089FED6190CB122003FBAF8 /* main.m */; };
+		9089FEE1190CB14D003FBAF8 /* NSString+ISDAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9089FEE0190CB14D003FBAF8 /* NSString+ISDAdditions.m */; };
+		9089FEE2190CB14D003FBAF8 /* NSString+ISDAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9089FEE0190CB14D003FBAF8 /* NSString+ISDAdditions.m */; };
+		9089FEE5190CB15B003FBAF8 /* IDXIBDumper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9089FEE4190CB15B003FBAF8 /* IDXIBDumper.m */; };
+		9089FEE6190CB190003FBAF8 /* CGUCodeGenTool.m in Sources */ = {isa = PBXBuildFile; fileRef = A885F8AD17DA8DE400A29164 /* CGUCodeGenTool.m */; };
 		A838792018A04BF700B386D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A89D8FE617CFFDCE0077F2B5 /* Foundation.framework */; };
 		A838792318A04BF700B386D6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A838792218A04BF700B386D6 /* main.m */; };
 		A838792B18A04C0E00B386D6 /* CGUCodeGenTool.m in Sources */ = {isa = PBXBuildFile; fileRef = A885F8AD17DA8DE400A29164 /* CGUCodeGenTool.m */; };
@@ -23,6 +29,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		9089FED1190CB122003FBAF8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		A838791D18A04BF700B386D6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -53,6 +68,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9089FED3190CB122003FBAF8 /* xibconstants */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xibconstants; sourceTree = BUILT_PRODUCTS_DIR; };
+		9089FED6190CB122003FBAF8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9089FED9190CB122003FBAF8 /* xibconstants-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "xibconstants-Prefix.pch"; sourceTree = "<group>"; };
+		9089FEDF190CB14D003FBAF8 /* NSString+ISDAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+ISDAdditions.h"; sourceTree = "<group>"; };
+		9089FEE0190CB14D003FBAF8 /* NSString+ISDAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+ISDAdditions.m"; sourceTree = "<group>"; };
+		9089FEE3190CB15B003FBAF8 /* IDXIBDumper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IDXIBDumper.h; sourceTree = "<group>"; };
+		9089FEE4190CB15B003FBAF8 /* IDXIBDumper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IDXIBDumper.m; sourceTree = "<group>"; };
 		A83878DB18A0367C00B386D6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		A83878DD18A0367C00B386D6 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		A83878FB18A0367C00B386D6 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -78,6 +100,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		9089FED0190CB122003FBAF8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9089FED4190CB122003FBAF8 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A838791C18A04BF700B386D6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -106,6 +136,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9089FED5190CB122003FBAF8 /* xibconstants */ = {
+			isa = PBXGroup;
+			children = (
+				9089FEE3190CB15B003FBAF8 /* IDXIBDumper.h */,
+				9089FEE4190CB15B003FBAF8 /* IDXIBDumper.m */,
+				9089FED6190CB122003FBAF8 /* main.m */,
+				9089FED8190CB122003FBAF8 /* Supporting Files */,
+			);
+			path = xibconstants;
+			sourceTree = "<group>";
+		};
+		9089FED8190CB122003FBAF8 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9089FED9190CB122003FBAF8 /* xibconstants-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		A838792118A04BF700B386D6 /* identifierconstants */ = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +198,8 @@
 			children = (
 				A885F8AC17DA8DE400A29164 /* CGUCodeGenTool.h */,
 				A885F8AD17DA8DE400A29164 /* CGUCodeGenTool.m */,
+				9089FEDF190CB14D003FBAF8 /* NSString+ISDAdditions.h */,
+				9089FEE0190CB14D003FBAF8 /* NSString+ISDAdditions.m */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -159,6 +210,7 @@
 				A89D8FE817CFFDCE0077F2B5 /* assetgen */,
 				A885F89D17DA8C7A00A29164 /* colordump */,
 				A838792118A04BF700B386D6 /* identifierconstants */,
+				9089FED5190CB122003FBAF8 /* xibconstants */,
 				A885F8A717DA8CBA00A29164 /* Shared */,
 				A89D8FE517CFFDCE0077F2B5 /* Frameworks */,
 				A89D8FE417CFFDCE0077F2B5 /* Products */,
@@ -171,6 +223,7 @@
 				A89D8FE317CFFDCE0077F2B5 /* objc-assetgen */,
 				A885F89B17DA8C7A00A29164 /* objc-colordump */,
 				A838791F18A04BF700B386D6 /* objc-identifierconstants */,
+				9089FED3190CB122003FBAF8 /* xibconstants */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -209,6 +262,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		9089FED2190CB122003FBAF8 /* xibconstants */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9089FEDC190CB122003FBAF8 /* Build configuration list for PBXNativeTarget "xibconstants" */;
+			buildPhases = (
+				9089FECF190CB122003FBAF8 /* Sources */,
+				9089FED0190CB122003FBAF8 /* Frameworks */,
+				9089FED1190CB122003FBAF8 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = xibconstants;
+			productName = xibconstants;
+			productReference = 9089FED3190CB122003FBAF8 /* xibconstants */;
+			productType = "com.apple.product-type.tool";
+		};
 		A838791E18A04BF700B386D6 /* identifierconstants */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A838792818A04BF700B386D6 /* Build configuration list for PBXNativeTarget "identifierconstants" */;
@@ -285,15 +355,28 @@
 				A89D8FE217CFFDCE0077F2B5 /* assetgen */,
 				A885F89A17DA8C7A00A29164 /* colordump */,
 				A838791E18A04BF700B386D6 /* identifierconstants */,
+				9089FED2190CB122003FBAF8 /* xibconstants */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		9089FECF190CB122003FBAF8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9089FEE2190CB14D003FBAF8 /* NSString+ISDAdditions.m in Sources */,
+				9089FEE6190CB190003FBAF8 /* CGUCodeGenTool.m in Sources */,
+				9089FED7190CB122003FBAF8 /* main.m in Sources */,
+				9089FEE5190CB15B003FBAF8 /* IDXIBDumper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A838791B18A04BF700B386D6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9089FEE1190CB14D003FBAF8 /* NSString+ISDAdditions.m in Sources */,
 				A838792318A04BF700B386D6 /* main.m in Sources */,
 				A838792B18A04C0E00B386D6 /* CGUCodeGenTool.m in Sources */,
 				A838792E18A04C3400B386D6 /* IDStoryboardDumper.m in Sources */,
@@ -323,6 +406,32 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		9089FEDD190CB122003FBAF8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "xibconstants/xibconstants-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9089FEDE190CB122003FBAF8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "xibconstants/xibconstants-Prefix.pch";
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		A838792918A04BF700B386D6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -460,6 +569,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		9089FEDC190CB122003FBAF8 /* Build configuration list for PBXNativeTarget "xibconstants" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9089FEDD190CB122003FBAF8 /* Debug */,
+				9089FEDE190CB122003FBAF8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		A838792818A04BF700B386D6 /* Build configuration list for PBXNativeTarget "identifierconstants" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
