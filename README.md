@@ -73,6 +73,12 @@ Options:
 <dt><code>&lt;paths></code></dt><dd>Input files; this and/or `-f` are required.</dd>
 </dl>
 
+## Installation
+
+1. Download the source code.
+2. Build the 3 tools in Xcode.
+3. Move binaries to folder `/usr/local/bin`
+
 ## Contributing
 
 We're glad you're interested in codegenutils, and we'd love to see where you take it. When you have a change you'd like to see in the master repository, [send a pull request](https://github.com/square/objc-codegenutils/pulls).
